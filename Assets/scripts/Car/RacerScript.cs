@@ -113,7 +113,7 @@ public class RacerScript : MonoBehaviour
     //helper method fadeaamiselle
     private void FadeGameViewAndRespawn(float length = 0.25f)
     {
-        if (GameManager.instance.isPaused || !racestarted || FadeState) return;
+        if (GameManager.instance.isPaused || !racestarted || raceFinished || FadeState) return;
 
         FadeState = true;
         LeanTween.value(respawnfade.GetComponent<RawImage>().color.a, 1f, length).setOnUpdate((float val) =>

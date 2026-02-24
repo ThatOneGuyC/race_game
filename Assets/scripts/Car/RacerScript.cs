@@ -39,7 +39,7 @@ public class RacerScript : MonoBehaviour
 
     private PlayerCarController carController;
 
-    void Awake() //voi olla ongelmallinen!!!
+    void Awake()
     {
         Controls = new CarInputActions();
         Controls.Enable();
@@ -59,8 +59,8 @@ public class RacerScript : MonoBehaviour
         //now who the fuck is this??
         if (GameManager.instance.CarUI != null) finalLapImg = GameManager.instance.CarUI.transform.Find("finalLap").gameObject;
         if (GameManager.instance.CarUI != null) respawnfade = GameManager.instance.CarUI.transform.Find("respawnfade").gameObject;
-        totalLaps = PlayerPrefs.GetInt("Laps");
         
+        totalLaps = PlayerPrefs.GetInt("Laps");
         if (PlayerPrefs.GetInt("Reverse") == 1)
         {
             foreach (Transform checkpoint in checkpoints) checkpoint.eulerAngles = new(checkpoint.eulerAngles.x, checkpoint.eulerAngles.y + 180.0f, checkpoint.eulerAngles.z);
@@ -83,7 +83,8 @@ public class RacerScript : MonoBehaviour
 
     void Start()
     {
-        InitializeRace();
+        respawnPoint = startFinishLine;
+        checkpointStates = new bool[checkpoints.Count];
     }
 
     void Update()
@@ -97,20 +98,11 @@ public class RacerScript : MonoBehaviour
         laptime += Time.fixedDeltaTime;
     }
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider trigger)
     {
-        if (other.gameObject.name == "StartFinish")
-        {
-            HandleStart();
-        }
-        else if (other.gameObject.CompareTag("RespawnTrigger")) // Check for the respawn trigger
-        {
-            FadeGameViewAndRespawn(0.8f);
-        }
-        else
-        {
-            HandleCheck(other);
-        }
+        if (trigger.gameObject.CompareTag("StartFinishLine")) HandleStart();
+        else if (trigger.gameObject.CompareTag("RespawnTrigger")) FadeGameViewAndRespawn(0.8f);
+        else HandleCheck(trigger);
     }
 
     //helper method fadeaamiselle
@@ -153,13 +145,6 @@ public class RacerScript : MonoBehaviour
         carController.ClearWheelTrails();
     }
 
-    void InitializeRace()
-    {
-        respawnPoint = startFinishLine;
-
-        checkpointStates = new bool[checkpoints.Count];
-    }
-
     void HandleReset()
     {
         if (transform.position.y < -1)
@@ -197,8 +182,7 @@ public class RacerScript : MonoBehaviour
                 finalLapImg.GetComponent<RectTransform>().anchoredPosition.x, 0.0f, 0.6f)
                 .setOnUpdate((float val) =>
                 {
-                    finalLapImg.GetComponent<RectTransform>().anchoredPosition = new Vector2(
-                    val, finalLapImg.GetComponent<RectTransform>().anchoredPosition.y);
+                    finalLapImg.GetComponent<RectTransform>().anchoredPosition = new Vector2(val, finalLapImg.GetComponent<RectTransform>().anchoredPosition.y);
                 })
                 .setEaseInOutCirc()
                 .setOnComplete(() =>
@@ -206,8 +190,7 @@ public class RacerScript : MonoBehaviour
                     finalLapImg.GetComponent<RectTransform>().anchoredPosition.x, -530.0f, 2.4f)
                     .setOnUpdate((float val) =>
                     {
-                        finalLapImg.GetComponent<RectTransform>().anchoredPosition = new Vector2(
-                        val, finalLapImg.GetComponent<RectTransform>().anchoredPosition.y);
+                        finalLapImg.GetComponent<RectTransform>().anchoredPosition = new Vector2(val, finalLapImg.GetComponent<RectTransform>().anchoredPosition.y);
                     })
                     .setEaseInExpo()
                 );
@@ -236,11 +219,11 @@ public class RacerScript : MonoBehaviour
         }
     }
 
-    void HandleCheck(Collider other)
+    void HandleCheck(Collider trigger)
     {
         for (int i = 0; i < checkpoints.Count; i++)
         {
-            if (other.transform == checkpoints[i])
+            if (trigger.transform == checkpoints[i])
             {
                 checkpointStates[i] = true;
                 respawnPoint = checkpoints[i];

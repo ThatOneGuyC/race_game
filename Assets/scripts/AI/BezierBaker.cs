@@ -1,4 +1,5 @@
 using System.Linq;
+using UnityEditor.EditorTools;
 using UnityEngine;
 
 // I love baking beziers they taste so good
@@ -10,14 +11,20 @@ public class BezierBaker : MonoBehaviour
     [Header("Path Settings")]
     [Tooltip("Parent transform containing cachedPoints for the AI path.")]
     public Transform path;
-    [Range(1, 50)]
+    [Range(1, 100)]
     [SerializeField] private int bezierCurveResolution = 10;
+    [Tooltip("How many points to sample for each bezier curve")]
+    [Range(3, 10)]
+    [SerializeField] private int sampleSize = 5;
+    [Tooltip("Amount of time in seconds for when to time out on baking.")]
+    [Range(1, 100)]
+    [SerializeField] private int timeOut = 10;
     [SerializeField] private Vector3[] cachedPoints;
     [ContextMenu("Bake Bezier Curve")]
     void Bake()
     {
         if (path == null) return;
-        cachedPoints = BezierMath.ComputeBezierPoints(bezierCurveResolution, path);
+        cachedPoints = BezierMath.ComputeBezierPoints(bezierCurveResolution, sampleSize, timeOut, path);
     }
 
     public Vector3[] GetCachedPoints()

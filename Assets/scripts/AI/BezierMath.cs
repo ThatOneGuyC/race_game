@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Mathematics;
 
 // Funny bezier maths :D
 public static class BezierMath
@@ -38,9 +39,13 @@ public static class BezierMath
 
     // Algorithm made by the french EWWWWWWWWWWWWWWW
     // De casteljau's algorithm for finding a point inside any amount of control points
-    public static Vector3 CalculateBezierPoint(float t, float y, Vector3[] controlPoints)
+    public static Vector3 CalculateBezierPoint(float t, List<Vector3> controlPoints)
     {
-        if (controlPoints == null || controlPoints.Count() == 0) return Vector3.zero;
+        if (controlPoints == null || controlPoints.Count() == 0)
+        {
+            Debug.Log("Control points are empty or null, returning fallback.");
+            return Vector3.zero;
+        }
 
         List<Vector3> points = new(controlPoints);
 
@@ -56,38 +61,46 @@ public static class BezierMath
         return points[0];
     }
 
-    // May get used later
-    public static Vector3[] ComputeBezierPoints(int bezierResolution,  Transform path)
+    public static Vector3[] ComputeBezierPoints(int bezierResolution, int sampleSize, int timeOut,  Transform path)
     {
         long startTime = DateTime.Now.Ticks;
-
         List<Vector3> bezierPoints = new();
         Vector3[] waypoints = path
             .GetComponentsInChildren<Transform>()
             .Where(t => t != path).Select(t => t.position)
             .ToArray();
-
         int size = waypoints.Count();
-        float inverseResolution = Mathf.Pow(bezierResolution, -1);
+        float inverseResolution = 1f / bezierResolution;
 
-        for (int i = 0; i < waypoints.Count(); i++)
+        float halfSampleSize = sampleSize / 2f;
+        float variance = sampleSize % 2 == 0 ? 0.5f : 0f;
+
+        float minT = (Mathf.Floor(halfSampleSize) - variance) / sampleSize;
+        float maxT = (Mathf.Ceil(halfSampleSize) + variance) / sampleSize;
+    
+        List<Vector3> samplePoints = new();
+        for (int i = 0; i < size; i++)
         {
-            float t = 0.4f;
-            do
+            samplePoints.Clear();
+            // Grab sample points from waypoints (using .Skip().Take() would cause it to not wrap around)
+            for (int j = i; j < i + sampleSize; j++) samplePoints.Add(waypoints[j % size]);
+            
+            for (float t = minT; t <= maxT; t += inverseResolution)
             {
+                Debug.Log(t);
                 bezierPoints.Add(
                     CalculateBezierPoint(
                         t, 
-                        path.position.y, 
-                        waypoints[i >= 2 ? i - 2: i - 2 + size],
-                        waypoints[i >= 1 ? i - 1: ^1],
-                        waypoints[i],
-                        waypoints[(i + 1) % size],
-                        waypoints[(i + 2) % size]
-                        )
+                        samplePoints
+                    )
                 );
-                t += inverseResolution;
-            } while (t <= 0.6f);
+
+                if ((DateTime.Now.Ticks - startTime) / 10_000_000 > timeOut) // Time out after a set amount of seconds
+                {
+                    Debug.Log($"Baking took too long, timing out. Is the loop infinite? Inverse resolution: {inverseResolution} (if 0 then loop is infinite)");
+                    return null;
+                }
+            }
         }
 
         Debug.Log($"Bezier points computed in {(DateTime.Now.Ticks - startTime) / 10} microseconds");

@@ -141,7 +141,7 @@ public class AiCarController : BaseCarController
 
         carRb.rotation = Quaternion.Lerp(
             carRb.rotation,
-            Quaternion.LookRotation(targetPoint - carRb.position),
+            Quaternion.LookRotation(new Vector3(targetPoint.x - carRb.position.x, 0, targetPoint.z - carRb.position.z)),
             TurnSensitivty * Time.fixedDeltaTime
         );
 

@@ -23,10 +23,7 @@ public class RaceResultCollector : MonoBehaviour
         }
 
         //lol
-        if (SceneManager.GetActiveScene().name == "tutorial")
-        {
-            resultHandler = new RaceResultHandler(Application.persistentDataPath, "tutorialMapResult.json");
-        }
+        if (SceneManager.GetActiveScene().name == "tutorial") resultHandler = new RaceResultHandler(Application.persistentDataPath, "tutorialMapResult.json");
         else
         {
             resultHandler = new RaceResultHandler(Application.persistentDataPath, fileName);
@@ -45,7 +42,7 @@ public class RaceResultCollector : MonoBehaviour
         string map = GetMap();
         string carName = GetCarName();
 
-        RaceResultData resultData = new RaceResultData(score, time, map, racerName, carName);
+        RaceResultData resultData = new(score, time, map, racerName, carName);
         resultHandler.Save(resultData);
 
         Debug.Log($"Race Result Saved - Racer: {racerName}, Score: {score}, Time: {time:F2}, Map: {map}, Car: {carName}");
@@ -56,11 +53,6 @@ public class RaceResultCollector : MonoBehaviour
         if (ScoreManager.instance != null)
         {
             return ScoreManager.instance.GetScoreInt();
-        }
-
-        if (GameManager.instance != null)
-        {
-            return GameManager.instance.score;
         }
 
         return 0;
@@ -84,12 +76,12 @@ public class RaceResultCollector : MonoBehaviour
         return tester switch
         {
             "haukipudas" => "Shoreline Day",
-            "ai_haukipudas" => "Shoreline Day [AI]",
             "haukipudas_night" => "Shoreline Night",
+            "ai_haukipudas" => "Shoreline Day [AI]",
             "ai_haukipudas_night" => "Shoreline Night [AI]",
-            "canyon" => "Canyon",
+            "canyon" => "Canyon Day",
             "canyon_night" => "Canyon Night",
-            "ai_canyon" => "Canyon [AI]",
+            "ai_canyon" => "Canyon Day [AI]",
             "ai_canyon_night" => "Canyon Night [AI]",
             "tutorial" => "Tutorial",
             _ => "Unknown"
@@ -99,8 +91,8 @@ public class RaceResultCollector : MonoBehaviour
     private string GetCarName()
     {
         string car = GameManager.instance.CurrentCar.name;
-        int index = car.IndexOf("(");
-        string result = car.Substring(0, index);
+        int endIndex = car.IndexOf("(");
+        string result = car.Substring(0, endIndex);
         if (GameManager.instance != null && GameManager.instance.CurrentCar != null)
         {
             return result;

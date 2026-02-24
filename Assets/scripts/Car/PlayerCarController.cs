@@ -349,11 +349,9 @@ public class PlayerCarController : BaseCarController
         CarRb.angularDamping = 0.1f;
         if (racerScript != null && (racerScript.raceFinished || GameManager.instance.carSpeed < 20.0f))
         {
-            GameManager.instance.StopAddingPoints();
         }
         AdjustForwardFrictrion();
         AdjustSuspension();
-        GameManager.instance.StopAddingPoints();
 
         foreach (var wheel in Wheels)
         {

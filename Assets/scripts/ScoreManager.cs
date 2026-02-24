@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 using TMPro;
 
-public class ScoreManager : MonoBehaviour, IDataPersistence
+public class ScoreManager : MonoBehaviour
 {
     [Header("Base")]
     [SerializeField] float basePointsPerSecond = 1.5f, baseSpeedMultiplier = 1f, maxForwardSpeedForBase = 40f;
@@ -78,7 +78,7 @@ public class ScoreManager : MonoBehaviour, IDataPersistence
     {
         TotalScoreText.text = "Final Score: " + GetScoreInt();
         TimeScoreText.text  = "Time: " + Mathf.FloorToInt(TimeStartPoint);
-        DriftScoreText.text = "Drift: " + Mathf.FloorToInt(GetScoreInt() - TimeStartPoint);
+        DriftScoreText.text = "Drift: " + Mathf.FloorToInt(scoreFloat);
     }
 
     public int GetScoreInt()  => racerScript != null && racerScript.raceFinished
@@ -96,17 +96,6 @@ public class ScoreManager : MonoBehaviour, IDataPersistence
             Debug.Log($"[ScoreManager] Grass hit - mult: x{driftCompoundMultiplier:F2}, time: {driftTime:F2}s");
             multCounter.UpdateMultiplierText(1f);
             driftMultLost.Play();
-        }
-    }
-
-    public void LoadData(GameData data) { }
-    public void SaveData(ref GameData data)
-    {
-        if (data != null && racerScript != null && racerScript.raceFinished)
-        {
-            int finalScore = GetScoreInt() + Mathf.FloorToInt(TimeStartPoint);
-            data.scored += finalScore;
-            Debug.Log($"ScoreManager: Saved final score {finalScore} to GameData.");
         }
     }
 

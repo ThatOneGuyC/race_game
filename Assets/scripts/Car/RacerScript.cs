@@ -1,14 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using System.Linq;
 using TMPro;
 
-public class RacerScript : MonoBehaviour, IDataPersistence
+public class RacerScript : MonoBehaviour
 {
     public GameObject winMenu; 
-    public GameObject Car1Hud;
     public GameObject Minimap;
     private GameObject respawnfade;
     private bool FadeState;
@@ -16,7 +14,6 @@ public class RacerScript : MonoBehaviour, IDataPersistence
     CarInputActions Controls;
 
     public float laptime;
-    public float Rank;
     public float besttime;
     public bool racestarted = false; // <-- Add this
     private bool startTimer = false;
@@ -42,41 +39,6 @@ public class RacerScript : MonoBehaviour, IDataPersistence
 
     private PlayerCarController carController;
 
-    public void LoadData(GameData data)
-    {
-        if (data != null)
-        {
-            string currentSceneName = SceneManager.GetActiveScene().name;
-            var sceneBestTime = data.bestTimesByMap
-                .FirstOrDefault(scene => scene.sceneName.ToLower() == currentSceneName.ToLower());
-
-            if (sceneBestTime != null)
-            {
-                besttime = sceneBestTime.bestTime;
-                Debug.Log($"Loaded best time for scene {currentSceneName}: {besttime}");
-            }
-            else
-            {
-                besttime = 0;
-            }
-        }
-    }
-
-    public void SaveData(ref GameData data)
-    {
-        //outdated
-        if (besttime > 0)
-        {
-            string currentSceneName = SceneManager.GetActiveScene().name;
-            DatapersistenceManager.instance.UpdateBestTime(currentSceneName, besttime);
-            
-        }
-        else
-        {
-            Debug.LogWarning("Best time is 0. Nothing to save.");
-        }
-    }
-
     void Awake() //voi olla ongelmallinen!!!
     {
         Controls = new CarInputActions();
@@ -94,8 +56,9 @@ public class RacerScript : MonoBehaviour, IDataPersistence
         checkpoints = GameObject.FindGameObjectsWithTag("checkpointTag").Select(a => a.transform).ToList();
         if (PlayerPrefs.GetInt("Reverse") == 1) foreach (Transform checkpoint in checkpoints) checkpoint.eulerAngles = new(checkpoint.eulerAngles.x, checkpoint.eulerAngles.y + 180.0f, checkpoint.eulerAngles.z);
 
-        finalLapImg = GameObject.Find("UIcanvas/finalLap");
-        respawnfade = GameObject.Find("UIcanvas/respawnfade");
+        //now who the fuck is this??
+        if (GameManager.instance.CarUI != null) finalLapImg = GameManager.instance.CarUI.transform.Find("finalLap").gameObject;
+        if (GameManager.instance.CarUI != null) respawnfade = GameManager.instance.CarUI.transform.Find("respawnfade").gameObject;
 
         winMenu = GameObject.Find("WinMenu").GetComponentInChildren<Canvas>(true).gameObject;
         Minimap = GameObject.Find("Minimap");
@@ -127,8 +90,8 @@ public class RacerScript : MonoBehaviour, IDataPersistence
     {
         if (!racestarted || raceFinished) return; // Only run race logic if started
 
+        laptime += Time.deltaTime;
         HandleReset();
-        Ranking(); // Continuously update the rank
     }
 
     void OnTriggerEnter(Collider other)
@@ -150,7 +113,7 @@ public class RacerScript : MonoBehaviour, IDataPersistence
     //helper method fadeaamiselle
     private void FadeGameViewAndRespawn(float length = 0.25f)
     {
-        if (GameManager.instance.isPaused || !racestarted || FadeState) return;
+        if (GameManager.instance.isPaused || !racestarted || raceFinished || FadeState) return;
 
         FadeState = true;
         LeanTween.value(respawnfade.GetComponent<RawImage>().color.a, 1f, length).setOnUpdate((float val) =>
@@ -163,7 +126,7 @@ public class RacerScript : MonoBehaviour, IDataPersistence
         .setOnComplete(() =>
         {
             RespawnAtLastCheckpoint();
-            LeanTween.value(respawnfade.GetComponent<RawImage>().color.a, 0f, length).setOnUpdate((float val) =>
+            LeanTween.value(respawnfade.GetComponent<RawImage>().color.a, 0f, 0.25f).setOnUpdate((float val) =>
             {
                 var img = respawnfade.GetComponent<RawImage>();
                 Color c = img.color;
@@ -283,14 +246,6 @@ public class RacerScript : MonoBehaviour, IDataPersistence
         }
     }
 
-    //water found in ocean
-    /* void ResetCarState()
-    {
-        Rigidbody rb = GetComponent<Rigidbody>();
-        rb.linearVelocity = Vector3.zero;
-        transform.rotation = Quaternion.Euler(0, 0, 0);
-    } */
-
     void StartNewLap()
     {
         startTimer = true;
@@ -314,10 +269,11 @@ public class RacerScript : MonoBehaviour, IDataPersistence
 
         musicControl.StopMusicTracks(true);
 
+        if (GameManager.instance.CarUI != null)
+            GameManager.instance.CarUI.SetActive(false);
+        //nää pitää korjata
         if (startFinishLine != null)
             startFinishLine.gameObject.SetActive(false);
-        if (Car1Hud != null)
-            Car1Hud.SetActive(false);
         if (Minimap != null)
             Minimap.SetActive(false);
         winMenu.SetActive(true);
@@ -344,11 +300,6 @@ public class RacerScript : MonoBehaviour, IDataPersistence
         {
             Button returnButton = endButtons[0].GetComponent<Button>();
 
-            DatapersistenceManager.instance.SaveGame();
-            print("data saved");
-            currentLap = 1;
-            laptime = 0;
-
             foreach (GameObject go in endButtons)
             {
                 LeanTween.value(go, go.GetComponent<RectTransform>().anchoredPosition.x, -20.0f, 1.2f)
@@ -369,13 +320,13 @@ public class RacerScript : MonoBehaviour, IDataPersistence
             }
 
             GameObject finishedImg, resultsImg;
-            finishedImg = GameObject.Find("Race Finished");
-            resultsImg = GameObject.Find("Race Results");
+            finishedImg = winMenu.transform.Find("Race Finished").gameObject;
+            resultsImg = winMenu.transform.Find("Race Results").gameObject;
 
             LeanTween.value(finishedImg, finishedImg.GetComponent<RectTransform>().anchoredPosition.y, 150.0f, 0.6f)
             .setOnUpdate((float val) =>
             {
-                finishedImg.GetComponent<RectTransform>().anchoredPosition
+                    finishedImg.GetComponent<RectTransform>().anchoredPosition
                 = new Vector2(finishedImg.GetComponent<RectTransform>().anchoredPosition.x, val);
             })
             .setEaseInOutQuart();
@@ -398,30 +349,6 @@ public class RacerScript : MonoBehaviour, IDataPersistence
             .setEaseInOutQuart();
 
             returnButton.Select();
-        }
-    } 
-
-    public void RestartRace()
-    {
-        if (winMenu != null)
-            winMenu.SetActive(false);
-
-        if (startFinishLine != null)
-            startFinishLine.gameObject.SetActive(true);
-
-        if (Car1Hud != null)
-            Car1Hud.SetActive(true);
-
-        InitializeRace();
-        Ranking();
-    }
-
-    public void Ranking()
-    {
-        if (GameManager.instance != null && laptime > 0)
-        {
-            float score = GameManager.instance.score;
-            Rank = score / laptime;
         }
     }
 

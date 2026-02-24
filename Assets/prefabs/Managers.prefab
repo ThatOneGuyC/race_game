@@ -49,67 +49,12 @@ MonoBehaviour:
   isAddingPoints: 0
   scoreamount: 0
   isPaused: 0
-  chosenMap: 1
-  currentCar: {fileID: 0}
+  playerSpawn: {fileID: 0}
+  reverse_playerSpawn: {fileID: 0}
   cars: []
-  carIndex: 0
   sceneSelected: 
   carSpeed: 0
   turbeActive: 0
---- !u!1 &2367314325167625749
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5974467120395971945}
-  - component: {fileID: 5964171366626162161}
-  m_Layer: 0
-  m_Name: RankManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5974467120395971945
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2367314325167625749}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7910035355320451708}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5964171366626162161
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2367314325167625749}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76f2203647f032c42a3f7c9b077a9ae2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rankThresholds:
-  - minValue: 0
-    maxValue: 20
-    rankName: bronze
-  - minValue: 20.001
-    maxValue: 50
-    rankName: silver
-  - minValue: 50.001
-    maxValue: 1e+13
-    rankName: gold
 --- !u!1 &4083394102137398945
 GameObject:
   m_ObjectHideFlags: 0
@@ -141,7 +86,6 @@ Transform:
   m_Children:
   - {fileID: 2892050656997403685}
   - {fileID: 6268441669253989315}
-  - {fileID: 5974467120395971945}
   - {fileID: 1007106158067370152}
   - {fileID: 5734643515791108747}
   - {fileID: 1360778627385000851}
@@ -205,11 +149,18 @@ MonoBehaviour:
   minDriftBonus: 300
   midDriftBonus: 2000
   maxDriftBonus: 7500
-  midTierThreshold: 0.4
   grassMaxBonus: 350
+  midTierThreshold: 0.4
   bonusApplyDuration: 1
   debugScoreBreakdown: 0
   multCounter: {fileID: 0}
+  driftMultLost: {fileID: 0}
+  TimeScoreText: {fileID: 0}
+  TotalScoreText: {fileID: 0}
+  DriftScoreText: {fileID: 0}
+  scoreFloat: 0
+  driftTime: 0
+  driftCompoundMultiplier: 0.65
 --- !u!1 &8652714450798268608
 GameObject:
   m_ObjectHideFlags: 0

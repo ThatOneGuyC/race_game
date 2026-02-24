@@ -44,6 +44,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SelectionMenu.unity
     guid: 123c3b8845b31a14080ebffe9f431fd1
+  - enabled: 1
+    path: Assets/Scenes/_maps/canyon_night.unity
+    guid: a6437e34ff36c904186874c2084bf23b
+  - enabled: 1
+    path: Assets/Scenes/_maps/ai_canyon.unity
+    guid: 6ef29958889742440937dd36e5cddb82
+  - enabled: 1
+    path: Assets/Scenes/_maps/ai_canyon_night.unity
+    guid: 83ecc5ba64d4f7a4bbdc17fcfa7d2bec
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 53472e6d66c2c0f4ba2cc137f3d2721b, type: 3}
   m_UseUCBPForAssetBundles: 0

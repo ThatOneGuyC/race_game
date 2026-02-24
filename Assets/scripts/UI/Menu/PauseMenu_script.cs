@@ -66,7 +66,6 @@ public class PauseMenu : MonoBehaviour
         if (!isActive)
         {
             pauseMenuObjects[0].transform.localPosition = new Vector3(0.0f, 470.0f, 0.0f);
-            GameManager.instance.StopAddingPoints();
             LeanTween.moveLocalY(pauseMenuObjects[0], 0.0f, 0.4f).setEaseInOutCirc().setIgnoreTimeScale(true);
             
             // Select the Play button for UI navigation

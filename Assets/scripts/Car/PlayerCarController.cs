@@ -181,7 +181,7 @@ public class PlayerCarController : BaseCarController
 
     void GetInputs()
     {
-        //lukee inputin valuen ja etenee siittä
+        //reads inputs and assigns them to values 
         //LGM.logitechInitialized || !LogitechGSDK.LogiIsConnected(0))
         
         SteerInput = Controls.CarControls.Move.ReadValue<Vector2>().x;
@@ -240,7 +240,7 @@ public class PlayerCarController : BaseCarController
     private void UpdateTargetTorque()
     {
         float inputValue = CurrentControlScheme == "Gamepad"
-            ? Controls.CarControls.ThrottleMod.ReadValue<float>()
+            ? Controls.CarControls.Move.ReadValue<float>()
             : Mathf.Abs(MoveInput);
 
         float power = CurrentControlScheme == "Gamepad" ? 0.9f : 1.0f;
@@ -297,7 +297,7 @@ public class PlayerCarController : BaseCarController
     //i hate this so much, its always somewhat broken but for now....... its not broken.
     void OnDriftPerformed(InputAction.CallbackContext ctx)
     {
-        if (IsDrifting || GameManager.instance.isPaused || !CanDrift || racerScript.raceFinished) return;
+        if (IsDrifting || !CanDrift || racerScript.raceFinished) return;
 
         Activedrift++;
         IsDrifting = true;
@@ -324,7 +324,7 @@ public class PlayerCarController : BaseCarController
     void OnDriftCanceled(InputAction.CallbackContext ctx)
     {
         StopDrifting();
-        OnDriftEndBoost();
+        OnDriftEndBoostTheCar();
         MaxAcceleration = PerusMaxAccerelation;
         TargetTorque = PerusTargetTorque;
         WheelEffects(false);
@@ -334,7 +334,7 @@ public class PlayerCarController : BaseCarController
     {
         if (Wheels.Any(wheel => IsWheelGrounded(wheel) && IsWheelOnGrass(wheel)))
         {
-            if (GrassRespawnActive && racerScript != null) racerScript.RespawnAtLastCheckpoint();
+            if (GrassRespawnActive) racerScript.RespawnAtLastCheckpoint();
             return true;
         }
         return false;
@@ -347,7 +347,7 @@ public class PlayerCarController : BaseCarController
         IsDrifting = false;
         MaxAcceleration = PerusMaxAccerelation;
         CarRb.angularDamping = 0.1f;
-        if (racerScript != null && (racerScript.raceFinished || GameManager.instance.carSpeed < 20.0f))
+        if (racerScript.raceFinished || GameManager.instance.carSpeed < 20.0f)
         {
         }
         AdjustForwardFrictrion();
@@ -359,7 +359,7 @@ public class PlayerCarController : BaseCarController
 
             WheelFrictionCurve sidewaysFriction = wheel.WheelCollider.sidewaysFriction;
             sidewaysFriction.extremumSlip = 0.15f;
-            sidewaysFriction.asymptoteSlip = 0.3f;
+            sidewaysFriction.asymptoteSlip = 0.1f;
             sidewaysFriction.extremumValue = 1.0f;
             sidewaysFriction.asymptoteValue = 1f;
             sidewaysFriction.stiffness = 5f;
@@ -367,7 +367,7 @@ public class PlayerCarController : BaseCarController
         }
     }
 
-    public void OnDriftEndBoost()
+    public void OnDriftEndBoostTheCar()
     {
         float driftmultiplier = ScoreManager.instance.CurrentDriftMultiplier;
 
@@ -387,7 +387,7 @@ public class PlayerCarController : BaseCarController
         float originalspeed = Maxspeed;
         float boostedMax = Mathf.Max(BaseSpeed + Turbesped, originalspeed + TurbeStrength);
 
-        float duration = Mathf.Lerp(1.5f, 3.5f, Mathf.InverseLerp(2f, 5f, TurbeStrength));
+        float duration = Mathf.Lerp(2.5f, 4.5f, Mathf.InverseLerp(2f, 5f, TurbeStrength));
         float timer = 0f;
         while (timer < duration)
         {

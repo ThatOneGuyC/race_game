@@ -26,6 +26,7 @@ TagManager:
   - raceresults
   - selectionMenu
   - firstSelectable
+  - StartFinishLine
   layers:
   - Default
   - TransparentFX

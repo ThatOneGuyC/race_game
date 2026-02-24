@@ -47,7 +47,7 @@ public class AiCarManager : MonoBehaviour
     {
         BezierBaker bezierBaker = GetComponent<BezierBaker>();
         Waypoints = bezierBaker.GetCachedPoints();
-        spawnedAiCarCount = 3;//(byte)PlayerPrefs.GetInt("AIAmount");
+        spawnedAiCarCount = (byte)PlayerPrefs.GetInt("AIAmount");
         difficulty = (AIDifficulty)PlayerPrefs.GetInt("AILevel");
 
         gm = GameManager.instance;

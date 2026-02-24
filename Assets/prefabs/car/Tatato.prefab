@@ -156,7 +156,7 @@ Transform:
   m_GameObject: {fileID: 890791162453699994}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.9734, y: 10.63647, z: -30.9}
+  m_LocalPosition: {x: 0, y: 2.5, z: -4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -737,7 +737,6 @@ GameObject:
   - component: {fileID: 4688050318836244363}
   - component: {fileID: 4725582504891344223}
   - component: {fileID: 8914551668265311642}
-  - component: {fileID: 3080231982172443036}
   - component: {fileID: 5630865942300931916}
   m_Layer: 0
   m_Name: car
@@ -843,10 +842,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   winMenu: {fileID: 0}
-  Car1Hud: {fileID: 777392002364676048, guid: 80000b9bacd37a44bb37538db943bd1e, type: 3}
   Minimap: {fileID: 0}
   laptime: 0
-  Rank: 0
   besttime: 0
   racestarted: 0
   startFinishLine: {fileID: 0}
@@ -855,27 +852,6 @@ MonoBehaviour:
   raceFinished: 0
   endButtons: []
   otherStuff: []
---- !u!114 &3080231982172443036
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3496182830567923885}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c0034849d033d3444b4c3f33ef275840, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  s1: {fileID: 0}
-  s2: {fileID: 0}
-  s3: {fileID: 0}
-  go: {fileID: 0}
-  racerScript: {fileID: 8914551668265311642}
-  count1: {fileID: 0}
-  count2: {fileID: 0}
-  count3: {fileID: 0}
-  countGo: {fileID: 0}
 --- !u!114 &5630865942300931916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2410,10 +2386,10 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 6752286418973455843, guid: d564b44e6c3401a46a68ee07eb6a202c, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8070669712328928004}
+      addedObject: {fileID: 2958032281502815075}
     - targetCorrespondingSourceObject: {fileID: 6752286418973455843, guid: d564b44e6c3401a46a68ee07eb6a202c, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2958032281502815075}
+      addedObject: {fileID: 8070669712328928004}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d564b44e6c3401a46a68ee07eb6a202c, type: 3}
 --- !u!4 &3649756231474564129 stripped

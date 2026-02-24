@@ -566,7 +566,6 @@ GameObject:
   - component: {fileID: 5206946789049082942}
   - component: {fileID: 8517265427435568403}
   - component: {fileID: 7719115578787100056}
-  - component: {fileID: 1900847727500882228}
   - component: {fileID: 3826701401428762936}
   m_Layer: 0
   m_Name: car
@@ -672,10 +671,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   winMenu: {fileID: 0}
-  Car1Hud: {fileID: 0}
   Minimap: {fileID: 0}
   laptime: 0
-  Rank: 0
   besttime: 0
   racestarted: 0
   startFinishLine: {fileID: 0}
@@ -695,27 +692,6 @@ MonoBehaviour:
   raceFinished: 0
   endButtons: []
   otherStuff: []
---- !u!114 &1900847727500882228
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4636398957456620512}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c0034849d033d3444b4c3f33ef275840, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  s1: {fileID: 0}
-  s2: {fileID: 0}
-  s3: {fileID: 0}
-  go: {fileID: 0}
-  racerScript: {fileID: 7719115578787100056}
-  count1: {fileID: 0}
-  count2: {fileID: 0}
-  count3: {fileID: 0}
-  countGo: {fileID: 0}
 --- !u!114 &3826701401428762936
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1673,7 +1649,7 @@ Transform:
   m_GameObject: {fileID: 8840443850188442421}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.9734, y: 10.63647, z: -30.9}
+  m_LocalPosition: {x: 0, y: 2.5, z: -4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

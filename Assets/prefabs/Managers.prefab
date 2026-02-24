@@ -44,10 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab64f29baee327542850c47bc690945a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  score: 0
-  scoreAddWT: 0.01
-  isAddingPoints: 0
-  scoreamount: 0
+  CarUI: {fileID: 0}
   isPaused: 0
   playerSpawn: {fileID: 0}
   reverse_playerSpawn: {fileID: 0}
@@ -84,6 +81,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 747933773441790523}
   - {fileID: 2892050656997403685}
   - {fileID: 6268441669253989315}
   - {fileID: 1007106158067370152}
@@ -161,6 +159,51 @@ MonoBehaviour:
   scoreFloat: 0
   driftTime: 0
   driftCompoundMultiplier: 0.65
+--- !u!1 &6134570125863506545
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 747933773441790523}
+  - component: {fileID: 3069992509363896031}
+  m_Layer: 0
+  m_Name: Waitbeforestart
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &747933773441790523
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6134570125863506545}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7910035355320451708}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3069992509363896031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6134570125863506545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0034849d033d3444b4c3f33ef275840, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Waitbeforestart
+  racerScript: {fileID: 0}
 --- !u!1 &8652714450798268608
 GameObject:
   m_ObjectHideFlags: 0

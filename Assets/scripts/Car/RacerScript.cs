@@ -53,18 +53,19 @@ public class RacerScript : MonoBehaviour
         Controls.Enable();
         Controls.CarControls.respawn.performed += ctx => FadeGameViewAndRespawn();
 
+        startFinishLine = GameObject.FindGameObjectWithTag("StartFinishLine").transform;
         checkpoints = GameObject.FindGameObjectsWithTag("checkpointTag").Select(a => a.transform).ToList();
-        if (PlayerPrefs.GetInt("Reverse") == 1) foreach (Transform checkpoint in checkpoints) checkpoint.eulerAngles = new(checkpoint.eulerAngles.x, checkpoint.eulerAngles.y + 180.0f, checkpoint.eulerAngles.z);
-
+        winMenu = GameObject.Find("WinMenu").GetComponentInChildren<Canvas>(true).gameObject;
         //now who the fuck is this??
         if (GameManager.instance.CarUI != null) finalLapImg = GameManager.instance.CarUI.transform.Find("finalLap").gameObject;
         if (GameManager.instance.CarUI != null) respawnfade = GameManager.instance.CarUI.transform.Find("respawnfade").gameObject;
-
-        winMenu = GameObject.Find("WinMenu").GetComponentInChildren<Canvas>(true).gameObject;
-        Minimap = GameObject.Find("Minimap");
-        startFinishLine = GameObject.Find("StartFinish").transform;
-
         totalLaps = PlayerPrefs.GetInt("Laps");
+        
+        if (PlayerPrefs.GetInt("Reverse") == 1)
+        {
+            foreach (Transform checkpoint in checkpoints) checkpoint.eulerAngles = new(checkpoint.eulerAngles.x, checkpoint.eulerAngles.y + 180.0f, checkpoint.eulerAngles.z);
+            startFinishLine.eulerAngles = new(startFinishLine.eulerAngles.x, startFinishLine.eulerAngles.y + 180.0f, startFinishLine.eulerAngles.z);
+        }
     }
 
     private void OnDisable()
@@ -83,15 +84,17 @@ public class RacerScript : MonoBehaviour
     void Start()
     {
         InitializeRace();
-        racestarted = false; // Ensure race doesn't start until countdown is done
     }
 
     void Update()
     {
-        if (!racestarted || raceFinished) return; // Only run race logic if started
-
-        laptime += Time.deltaTime;
+        if (!racestarted || raceFinished) return;
         HandleReset();
+    }
+    void FixedUpdate()
+    {
+        if (!racestarted || raceFinished) return;
+        laptime += Time.fixedDeltaTime;
     }
 
     void OnTriggerEnter(Collider other)

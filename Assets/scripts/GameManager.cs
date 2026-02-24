@@ -5,19 +5,11 @@ using System;
 
 
 
-public class GameManager : MonoBehaviour, IDataPersistence
+public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     public static RacerScript racerscript;
-
-    [Header("score systeemi")]
-    public int score;
-
-    public float scoreAddWT = 0.01f; //WT = wait time
-
-    public bool isAddingPoints = false;
-
-    public float scoreamount = 0;
+    public GameObject CarUI;
 
     [Header("menut")]
     public bool isPaused = false;
@@ -67,22 +59,6 @@ public class GameManager : MonoBehaviour, IDataPersistence
         racerscript = FindAnyObjectByType<RacerScript>();
     }
 
-    public void LoadData(GameData data)
-    {
-        if (data != null)
-        {
-            return;
-        }
-    }
-
-    public void SaveData(ref GameData data)
-    {
-        if (data != null)
-        {
-            data.scored += this.score;
-        }       
-    }
-
     //temp ja ota se pois sit
     public void Update()
     {
@@ -91,10 +67,5 @@ public class GameManager : MonoBehaviour, IDataPersistence
             if (racerscript.winMenu.activeSelf) return;
             racerscript.EndRace();
         }
-    }
-
-    public void StopAddingPoints()
-    {
-        isAddingPoints = false;
     }
 }

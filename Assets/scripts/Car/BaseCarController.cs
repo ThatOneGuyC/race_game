@@ -205,7 +205,6 @@ public class BaseCarController : MonoBehaviour
 
     protected void Brakes(Wheel wheel)
     {
-        GameManager.instance.StopAddingPoints();
         wheel.WheelCollider.brakeTorque = BrakeAcceleration * 15f;
     }
 

@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class Waitbeforestart : MonoBehaviour
 {
@@ -48,6 +49,7 @@ public class Waitbeforestart : MonoBehaviour
 
     IEnumerator ShowS1AfterDelay()
     {
+        yield return new WaitForSecondsRealtime(1f);
         for (int val = 0; val <= 2; val++)
         {
             countGraphics[val].SetActive(true);
@@ -64,7 +66,7 @@ public class Waitbeforestart : MonoBehaviour
             })
             .setIgnoreTimeScale(true)
             .setEaseLinear();
-            yield return new WaitForSecondsRealtime(1.0f);
+            yield return new WaitForSecondsRealtime(1f);
         }
 
         countGraphics[3].SetActive(true);

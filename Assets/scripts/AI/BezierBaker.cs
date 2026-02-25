@@ -1,6 +1,9 @@
+using System.Drawing;
 using System.Linq;
 using UnityEditor.EditorTools;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
+using UnityEngine.Splines;
 
 // I love baking beziers they taste so good
 
@@ -19,12 +22,29 @@ public class BezierBaker : MonoBehaviour
     [Tooltip("Amount of time in seconds for when to time out on baking.")]
     [Range(1, 100)]
     [SerializeField] private int timeOut = 10;
+    [SerializeField] private SplineContainer SplineContainer;
     [SerializeField] private Vector3[] cachedPoints;
     [ContextMenu("Bake Bezier Curve")]
     void Bake()
     {
         if (path == null) return;
-        cachedPoints = BezierMath.ComputeBezierPoints(bezierCurveResolution, sampleSize, timeOut, path);
+        cachedPoints = BezierMath.ComputeBezierPoints(
+            bezierCurveResolution, 
+            sampleSize, 
+            timeOut, 
+            path
+            .GetComponentsInChildren<Transform>()
+            .Where(t => t != path).Select(t => t.position)
+            .ToArray()
+        );
+    }
+    [ContextMenu("Use Road Spline")]
+    void SplinePoint()
+    {
+        Transform splineTransform = SplineContainer.GetComponent<Transform>();
+        cachedPoints = SplineContainer[0].Select(point => 
+            splineTransform.rotation * new Vector3(point.Position.x, point.Position.y, point.Position.z) + splineTransform.position
+        ).ToArray();
     }
 
     public Vector3[] GetCachedPoints()
@@ -37,7 +57,7 @@ public class BezierBaker : MonoBehaviour
     }
 
     #if UNITY_EDITOR
-    void OnDrawGizmosSelected()
+    void OnDrawGizmos()
     {
         if (cachedPoints.Count() <= 1) return;
 

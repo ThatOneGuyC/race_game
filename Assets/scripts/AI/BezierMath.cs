@@ -61,15 +61,13 @@ public static class BezierMath
         return points[0];
     }
 
-    public static Vector3[] ComputeBezierPoints(int bezierResolution, int sampleSize, int timeOut,  Transform path)
+    public static Vector3[] ComputeBezierPoints(int bezierResolution, int sampleSize, int timeOut, Vector3[] wayPoints)
     {
         long startTime = DateTime.Now.Ticks;
+
         List<Vector3> bezierPoints = new();
-        Vector3[] waypoints = path
-            .GetComponentsInChildren<Transform>()
-            .Where(t => t != path).Select(t => t.position)
-            .ToArray();
-        int size = waypoints.Count();
+        int size = wayPoints.Count();
+
         float inverseResolution = 1f / bezierResolution;
 
         float halfSampleSize = sampleSize / 2f;
@@ -78,22 +76,15 @@ public static class BezierMath
         float minT = (Mathf.Floor(halfSampleSize) - variance) / sampleSize;
         float maxT = (Mathf.Ceil(halfSampleSize) + variance) / sampleSize;
     
-        List<Vector3> samplePoints = new();
         for (int i = 0; i < size; i++)
         {
-            samplePoints.Clear();
+            List<Vector3> samplePoints = new();
             // Grab sample points from waypoints (using .Skip().Take() would cause it to not wrap around)
-            for (int j = i; j < i + sampleSize; j++) samplePoints.Add(waypoints[j % size]);
+            for (int j = i; j < i + sampleSize; j++) samplePoints.Add(wayPoints[j % size]);
             
             for (float t = minT; t <= maxT; t += inverseResolution)
             {
-                Debug.Log(t);
-                bezierPoints.Add(
-                    CalculateBezierPoint(
-                        t, 
-                        samplePoints
-                    )
-                );
+                bezierPoints.Add(CalculateBezierPoint(t, samplePoints));
 
                 if ((DateTime.Now.Ticks - startTime) / 10_000_000 > timeOut) // Time out after a set amount of seconds
                 {

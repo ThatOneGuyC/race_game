@@ -13,27 +13,25 @@ public class BillboardManager : MonoBehaviour
 
     float timer;
 
-    void Awake()
+    void OnEnable()
     {
-        if (billboardCamera == null)
-            StartCoroutine(FindCameraDelayed());
-    }
-
-    IEnumerator FindCameraDelayed()
-    {
-        yield return new WaitForSeconds(0.05f); // Wait 50ms before retrying
-        if (billboardCamera == null)
-            billboardCamera = Camera.main;
+        if (billboardCamera == null) billboardCamera = Camera.main;
     }
 
     void Update()
     {
-        timer += Time.deltaTime;
+        //käytetään unscaledDeltaTimeä sillä ne puut ei muuten tykkää billboardata alussa.
+        //JA että se kamera toivottavasti ei snappaa oudosti mapin alussa
+        timer += Time.unscaledDeltaTime;
         if (timer < updateInterval) return; 
         timer = 0f;
 
-        if (billboardCamera == null)
-            return;
+        UpdateBillboarding();
+    }
+
+    void UpdateBillboarding()
+    {
+        if (billboardCamera == null) return;
 
         Vector3 camPos = billboardCamera.transform.position;
         Vector3 camForward = billboardCamera.transform.forward;
@@ -45,8 +43,7 @@ public class BillboardManager : MonoBehaviour
 
             Vector3 toObj = (obj.transform.position - camPos).normalized;
 
-            if (Vector3.Angle(camForward, toObj) > lenientAngle)
-                continue;
+            if (Vector3.Angle(camForward, toObj) > lenientAngle) continue;
 
             Vector3 lookDir = camPos - obj.transform.position;
             lookDir.y = 0f;
@@ -61,8 +58,7 @@ public class BillboardManager : MonoBehaviour
 
     public static void Register(BillboardObject obj)
     {
-        if (!objects.Contains(obj))
-            objects.Add(obj);
+        if (!objects.Contains(obj)) objects.Add(obj);
     }
 
     public static void Unregister(BillboardObject obj)

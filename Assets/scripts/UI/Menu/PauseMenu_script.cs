@@ -112,6 +112,8 @@ public class PauseMenu : MonoBehaviour
         if (musicCtrl != null) musicCtrl.PausedMusicHandler();
         soundFXControl soundFXctrl = FindFirstObjectByType<soundFXControl>();
         if (soundFXctrl != null && racerScript.racestarted) soundFXctrl.PauseStateHandler();
+        musicControlTutorial musicCtrlTutorial = FindFirstObjectByType<musicControlTutorial>();
+        if (musicCtrlTutorial != null && racerScript.racestarted) musicCtrlTutorial.PausedMusicHandler();
     }
 
     public void ContinueGame()

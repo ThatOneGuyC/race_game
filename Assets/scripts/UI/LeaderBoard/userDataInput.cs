@@ -23,7 +23,7 @@ public class userDataInput : MonoBehaviour
     void OnEnable()
     {
         inputField = GameObject.Find("userDataInput").GetComponent<TMP_InputField>();
-        enter = GameObject.Find("Enter").GetComponent<Button>();
+        enter = GameObject.Find("SubmitButton").GetComponent<Button>();
 
         jsonText = Resources.Load<TextAsset>("bannedNames");
         bannedNamesArray = JsonUtility.FromJson<BannedNames>(jsonText.text).names.ToArray();

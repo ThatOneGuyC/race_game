@@ -28,7 +28,6 @@ public class musicControlTutorial : MonoBehaviour
         Controls.Enable();
 
         carController = FindAnyObjectByType<PlayerCarController>();
-        Controls.CarControls.pausemenu.performed += ctx => PausedMusicHandler();
     }
     private void OnDisable()
     {

@@ -289,8 +289,6 @@ public class RacerScript : MonoBehaviour
     {
         if (winMenu != null)
         {
-            Button returnButton = endButtons[0].GetComponent<Button>();
-
             foreach (GameObject go in endButtons)
             {
                 LeanTween.value(go, go.GetComponent<RectTransform>().anchoredPosition.x, -20.0f, 1.2f)
@@ -338,8 +336,6 @@ public class RacerScript : MonoBehaviour
                 = new Vector2(leaderboard.GetComponent<RectTransform>().anchoredPosition.x, val);
             })
             .setEaseInOutQuart();
-
-            returnButton.Select();
         }
     }
 

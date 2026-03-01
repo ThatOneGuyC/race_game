@@ -9,9 +9,6 @@ public class specialTextChances
 {
     public float error;
     public float allthetexts;
-    public float play1;
-    public float play2;
-    public float play3;
     public float chance;
     public float outoftime;
     public float juud7;

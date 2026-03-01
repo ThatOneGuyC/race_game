@@ -80,7 +80,6 @@ public class SelectionMenuNewestComboDoubleTroubleExtraSauce : MonoBehaviour
     
 
     //4. setuppaa map selectionin kuva juttu [ehkä]
-    //back buttonin voi poistaa
 
     void Awake()
     {

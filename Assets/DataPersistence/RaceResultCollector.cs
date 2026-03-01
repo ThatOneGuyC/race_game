@@ -91,7 +91,8 @@ public class RaceResultCollector : MonoBehaviour
     private string GetCarName()
     {
         string car = GameManager.instance.CurrentCar.name;
-        int endIndex = car.IndexOf("(");
+        bool DumbThingToCheckForTutorial = car.Contains("(");
+        int endIndex = DumbThingToCheckForTutorial ? car.IndexOf("(") : car.Length - 1;
         string result = car.Substring(0, endIndex);
         if (GameManager.instance != null && GameManager.instance.CurrentCar != null)
         {

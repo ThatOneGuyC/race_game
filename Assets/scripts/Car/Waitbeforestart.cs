@@ -56,7 +56,7 @@ public class Waitbeforestart : MonoBehaviour
             countSounds[val].Play();
 
             LogitechLedController.SetNormalized((val + 1) / 3);
-            LeanTween.value(countGraphics[val].GetComponent<RawImage>().color.a, 0.0f, 0.9f)
+            LeanTween.value(countGraphics[val].GetComponent<RawImage>().color.a, 0.0f, 0.7f)
             .setOnUpdate((float alpha) =>
             {
                 var img = countGraphics[val].GetComponent<RawImage>();

@@ -7,7 +7,7 @@
 
     "driving": [
         "Use WASD to control your car.",
-        "Holding [left] Shift enables the handbrake.",
+        "Holding [left] CTRL enables the handbrake.",
         "To make sure you've understood, go ahead and clear this first course.",
         "Well done."
     ],
@@ -45,7 +45,7 @@
     ],
 
     "turbe": [
-        "You can use turbo by holding [left] CTRL.",
+        "You can use turbo by holding [left] Shift.",
         "We have a limited supply of that stuff per car; the amount's on the green gauge, as said before.",
         "The supply does regenerate after letting it rest for a while.",
         "Try using it here."

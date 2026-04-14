@@ -238,7 +238,8 @@ public class RacerScript : MonoBehaviour
             c.a = alpha;
             finishedImg.color = c;
         }).setIgnoreTimeScale(true).setEaseInCirc();
-
+        StartCoroutine(StopCarSmooth());
+        carController.Controls.Disable();
         raceFinished = true;
         startTimer = false;
         carController.StopDrifting();
@@ -251,4 +252,21 @@ public class RacerScript : MonoBehaviour
         winmenu.OnRaceEnd();
         Destroy(FindFirstObjectByType<OptionCategories>(FindObjectsInactive.Include));
     }
+    Rigidbody rb => GetComponent<Rigidbody>();
+    IEnumerator StopCarSmooth()
+    {
+        while (rb.linearVelocity.magnitude > 0.05f || rb.angularVelocity.magnitude > 0.05f)
+        {
+            float linearSpeed = Mathf.MoveTowards(rb.linearVelocity.magnitude, 0f, 35f * Time.deltaTime);
+            float angularSpeed = Mathf.MoveTowards(rb.angularVelocity.magnitude, 0f, 140f * Time.deltaTime);
+
+            rb.linearVelocity = rb.linearVelocity.sqrMagnitude > 0.0001f ? rb.linearVelocity.normalized * linearSpeed : Vector3.zero;
+            rb.angularVelocity = rb.angularVelocity.sqrMagnitude > 0.0001f ? rb.angularVelocity.normalized * angularSpeed : Vector3.zero;
+            yield return null;
+        }
+
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+    }
+
 }

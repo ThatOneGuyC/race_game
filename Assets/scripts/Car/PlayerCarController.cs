@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using Logitech;
 using System.Linq;
 using System.Collections;
+using UnityEngine.Rendering.Universal;
 
 
 
@@ -43,7 +44,6 @@ public class PlayerCarController : BaseCarController
 
         PerusMaxAccerelation = MaxAcceleration;
         SmoothedMaxAcceleration = PerusMaxAccerelation;
-        PerusTargetTorque = TargetTorque;
 
         if (LGM == null)
         {
@@ -63,6 +63,7 @@ public class PlayerCarController : BaseCarController
 
         base.Start();
     }
+
 
     private void OnControlsChanged(PlayerInput input)
     {
@@ -157,7 +158,7 @@ public class PlayerCarController : BaseCarController
             LGM.StopAllForceFeedback();
     }
 
-
+    //move the movement into the update 
     void Update()
     {
         GetInputs();
@@ -184,14 +185,13 @@ public class PlayerCarController : BaseCarController
         float speed = CarRb.linearVelocity.magnitude;
         isOnGrassCachedValid = false;
         UpdateDriftSpeed();
+        ApplySpeedLimit(Maxspeed / 3.6f);
         Move();
         Steer();
         Decelerate();
         Applyturnsensitivity(speed);
         //OnGrass();
         HandleTurbo();
-
-        ApplySpeedLimit(Maxspeed / 3.6f);
         WheelEffects(IsDrifting);
     }
 
@@ -257,33 +257,11 @@ public class PlayerCarController : BaseCarController
         TurbeMeter();
     }
 
-    protected override void OnGrass()
-    {
-        int wheelsOnGrass = 0;
-        foreach (var wheel in Wheels)
-        {
-            if (IsWheelOnGrass(wheel))
-            {
-                wheelsOnGrass++;
-                print(wheelsOnGrass);
-            }
-            GameObject wheelEffectObj = wheel.WheelEffectobj;
-            if (wheelEffectObj == null) continue;
-
-            var trail = wheelEffectObj.GetComponentInChildren<TrailRenderer>();
-            if (trail == null) continue;
-
-            bool IsTheWheelOnGrass = IsWheelOnGrass(wheel);
-            trail.startColor = IsTheWheelOnGrass ? GrassTrailColor : RoadTrailColor;
-        }
-        if (ScoreManager.instance != null) ScoreManager.instance.SetOnGrass(wheelsOnGrass >= 2);
-    }
-
 
 
     void Move()
     {
-        UpdateTargetTorque();
+        CarMovement();
         AdjustSpeedForGrass();
         AdjustSuspension();
         foreach (var wheel in Wheels)
@@ -293,7 +271,11 @@ public class PlayerCarController : BaseCarController
         }
     }
 
-    private void UpdateTargetTorque()
+    /// <summary>
+    /// moves the car using CarRb.linearvelocity and forcemode.accerelation
+    /// </summary>
+    private void CarMovement()
+    {
     {
         float inputValue = Mathf.Abs(MoveInput);
         if (CurrentControlScheme == "Gamepad")
@@ -336,6 +318,7 @@ public class PlayerCarController : BaseCarController
             Maxspeed = Mathf.Lerp(Maxspeed, targetMaxSpeed, Time.deltaTime);
         }
     }
+    }
 
 
 
@@ -352,6 +335,8 @@ public class PlayerCarController : BaseCarController
         return 0.0f;
     }
 
+
+    //this entire thing will be reworked into a completely different drift
     //i hate this so much, its always somewhat broken but for now....... its not broken.
     void OnDriftPerformed(InputAction.CallbackContext ctx)
     {
@@ -379,12 +364,63 @@ public class PlayerCarController : BaseCarController
         WheelEffects(true);
     }
 
+    protected new void AdjustWheelsForDrift()
+    {
+        foreach (var wheel in Wheels)
+        {
+            JointSpring suspensionSpring = wheel.WheelCollider.suspensionSpring;
+            suspensionSpring.spring = 500.0f;
+            suspensionSpring.damper = 2500.0f;
+            wheel.WheelCollider.suspensionSpring = suspensionSpring;
+
+            WheelFrictionCurve forwardFriction = wheel.WheelCollider.forwardFriction;
+            forwardFriction.extremumSlip = 0.45f;
+            forwardFriction.asymptoteSlip = 0.6f;
+            forwardFriction.extremumValue = 1;
+            forwardFriction.asymptoteValue = 1;
+            forwardFriction.stiffness = 5.5f;
+            wheel.WheelCollider.forwardFriction = forwardFriction;
+
+            if (wheel.Axel == Axel.Front)
+            {
+                WheelFrictionCurve sidewaysFriction = wheel.WheelCollider.sidewaysFriction;
+                sidewaysFriction.stiffness = 2f;
+                wheel.WheelCollider.sidewaysFriction = sidewaysFriction;
+            }
+        }        
+    }
+
+
+    protected new void AdjustSuspension()
+    {
+        foreach (var wheel in Wheels)
+        {
+            JointSpring suspensionSpring = wheel.WheelCollider.suspensionSpring;
+            suspensionSpring.spring = 8000.0f;
+            suspensionSpring.damper = 5000.0f;
+            wheel.WheelCollider.suspensionSpring = suspensionSpring;
+        }
+    }
+
+    protected new void AdjustForwardFrictrion()
+    {
+        foreach (var wheel in Wheels)
+        {
+            WheelFrictionCurve forwardFriction = wheel.WheelCollider.forwardFriction;
+            forwardFriction.extremumSlip = 0.8f;
+            forwardFriction.extremumValue = 1;
+            forwardFriction.asymptoteSlip = 1.0f;
+            forwardFriction.asymptoteValue = 1;
+            forwardFriction.stiffness = 7f;
+            wheel.WheelCollider.forwardFriction = forwardFriction;
+        }
+    }
+
     void OnDriftCanceled(InputAction.CallbackContext ctx)
     {
         StopDrifting();
         OnDriftEndBoostTheCar();
         MaxAcceleration = PerusMaxAccerelation;
-        TargetTorque = PerusTargetTorque;
         WheelEffects(false);
     }
 
@@ -421,8 +457,9 @@ public class PlayerCarController : BaseCarController
         }
     }
 
+    //this entire patch thats inside these comments will be reworked
 
-
+    
     public void OnDriftEndBoostTheCar()
     {
         float driftmultiplier = ScoreManager.instance.CurrentDriftMultiplier;
@@ -438,7 +475,7 @@ public class PlayerCarController : BaseCarController
 
         TurbeBoost = StartCoroutine(BoostCoroutine(TurbeStrength, Duration));
     }
-
+    //refactor this aswell bcs its shit right now
     internal IEnumerator BoostCoroutine(float turboStrength, float durationOverride = -1f)
     {
 

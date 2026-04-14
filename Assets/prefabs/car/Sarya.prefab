@@ -663,6 +663,7 @@ GameObject:
   - component: {fileID: 2285249159904490474}
   - component: {fileID: 187602521392888673}
   - component: {fileID: 1311118830665507097}
+  - component: {fileID: 8656803013594639001}
   m_Layer: 0
   m_Name: car
   m_TagString: Untagged
@@ -727,7 +728,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3013609153453077785}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 846c21108a9446549ac1ccfe7dfd277a, type: 3}
   m_Name: 
@@ -760,8 +761,6 @@ MonoBehaviour:
   TurbeRegen: 15
   TurbeWaitTime: 2
   selectedTurboType: 0
-  LastNonWheelInputTime: 0
-  LastWheelInputTime: 0
 --- !u!114 &187602521392888673
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -795,6 +794,45 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   duration: 3
   lights: {fileID: 0}
+--- !u!114 &8656803013594639001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3013609153453077785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2831e5b66e7145d4a913f2e5600c814c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NewDoublefunszechuansauceWithAsideofNuggets
+  MaxAcceleration: 700
+  BrakeAcceleration: 500
+  TurnSensitivity: 1
+  TurnSensitivityAtHighSpeed: 17.5
+  TurnSensitivityAtLowSpeed: 30
+  Deceleration: 1
+  Maxspeed: 100
+  GravityMultiplier: 1.5
+  Wheels: []
+  GrassSpeedMultiplier: 0.5
+  GrassLayerName: grass
+  EmitTrailsOnlyWhileDrifting: 1
+  GrassRespawnActive: 0
+  MoveInput: 0
+  SteerInput: 0
+  Turbesped: 60
+  TurbeChargeSped: 80
+  BaseSpeed: 180
+  Grassmaxspeed: 50
+  DriftMaxSpeed: 140
+  TurbeAmount: 100
+  TurbeMax: 100
+  Turbepush: 15
+  turbechargepush: 20
+  TurbeReduce: 10
+  TurbeRegen: 10
+  TurbeWaitTime: 2
 --- !u!1 &3172822010265455929
 GameObject:
   m_ObjectHideFlags: 0

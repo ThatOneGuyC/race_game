@@ -5,7 +5,6 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Linq;
 
-
 public class BaseCarController : MonoBehaviour
 {
     public enum Axel
@@ -15,7 +14,7 @@ public class BaseCarController : MonoBehaviour
     }
 
     [Serializable]
-    public struct Wheel
+    public class Wheel
     {
         public GameObject WheelModel;
         public WheelCollider WheelCollider;
@@ -23,39 +22,43 @@ public class BaseCarController : MonoBehaviour
         public GameObject WheelEffectobj;
         public ParticleSystem SmokeParticle;
         public Axel Axel;
+
+        public bool IsGrounded()
+        {
+            return WheelCollider.GetGroundHit(out WheelHit hit);
+        }
     }
 
     [Header("Auton asetukset")]
-    [SerializeField] internal float MaxAcceleration = 700.0f;
+    public float MaxAcceleration = 700.0f;
+    public float MaxDeceleration = 700.0f; // Change to something later?
     [SerializeField] protected float BrakeAcceleration = 500.0f;
     [Header("turn asetukset")]
-    [SerializeField] protected float TurnSensitivity  = 1.0f;
-    [SerializeField] protected float TurnSensitivityAtHighSpeed  = 17.5f;
-    [SerializeField] protected float TurnSensitivityAtLowSpeed  = 30.0f;
-    [SerializeField] protected float Deceleration  = 1.0f;
-    [Min(100.0f)]
-    [SerializeField] protected float Maxspeed  = 100.0f;
-    [SerializeField] protected float GravityMultiplier  = 1.5f;
+    [SerializeField] protected float TurnSensitivity = 1.0f;
+    [SerializeField] protected float TurnSensitivityAtHighSpeed = 17.5f;
+    [SerializeField] protected float TurnSensitivityAtLowSpeed = 30.0f;
+    [SerializeField] protected float Deceleration = 1.0f;
+    public float Maxspeed { get; protected set; } = 100.0f;
+    [SerializeField] protected float TargetMaxSpeed = 100.0f;
     [SerializeField] protected List<Wheel> Wheels;
-    WheelHit hit;
     [Header("Trail settings")]
-    [SerializeField] protected bool EmitTrailsOnlyWhileDrifting = true;
     public float MoveInput;
     public float SteerInput;
     protected Vector3 _CenterofMass;
-    internal float TargetTorque  = 0.0f;
+    public float TargetTorque;
     public Rigidbody CarRb { get; protected set; }
-    protected float Activedrift = 0.0f;
-    [SerializeField] protected float Turbesped = 60.0f, TurbeChargeSped = 80, BaseSpeed = 180f, Grassmaxspeed = 50.0f, DriftMaxSpeed = 140f;
+    [SerializeField] protected float Turbesped = 60.0f, TurbeChargeSped = 80, BaseSpeed = 180f, DriftMaxSpeed = 140f;
     [Header("Drift asetukset")]
-    //protected float DriftMultiplier = 1.0f;
     public bool IsDrifting { get; protected set; } = false;
-    protected Color RoadTrailColor = new Color(0.08f, 0.08f, 0.08f);
-    internal float PerusMaxAccerelation, PerusTargetTorque, SmoothedMaxAcceleration;
+    public float BaseMaxAccerelation { get; protected set; }
+    public float BaseTargetTorque { get; protected set; }
+    public float SmoothedMaxAcceleration { get; protected set; }
     [Header("turbe asetukset")]
     protected Image TurbeBar;
-    public bool IsTurboActive { get; internal set; } = false;
-    [SerializeField] internal float TurbeAmount = 100.0f, TurbeMax = 100.0f, Turbepush = 15.0f, turbechargepush = 20;
+    public bool IsTurboActive { get; set; } = false;
+    public float TurbeAmount { get; protected set; } = 100.0f;
+    [SerializeField] protected float TurbeMax = 100.0f;
+    public float Turbepush = 15.0f;
     [SerializeField] protected float TurbeReduce = 10.0f;
     [SerializeField] protected float TurbeRegen = 10.0f;
     [SerializeField] protected float TurbeWaitTime = 2.0f;
@@ -64,30 +67,29 @@ public class BaseCarController : MonoBehaviour
     [NonSerialized] public bool CanDrift = true;
     [NonSerialized] public bool CanUseTurbo = true;
     protected Collider carCollider;
-    public float CarWidth { get; protected set; }
-    public float CarLength { get; protected set; }
+    public Vector3 CarExtents { get; protected set; }
+
+    protected virtual void Awake()
+    {
+        AutoAssignWheelsAndMaterials();
+    }
 
     protected virtual void Start()
     {
-        carCollider = GetComponentInChildren<MeshCollider>();
-        CarWidth = carCollider.bounds.size.x;
-        CarLength = carCollider.bounds.size.z;
+        carCollider = GetComponentInChildren<Collider>();
+        CarExtents = carCollider.bounds.size;
         ClearWheelTrails();
     }
 
-    public float GetSpeed()
+    protected virtual void FixedUpdate()
     {
-        return CarRb.linearVelocity.magnitude * 3.6f;
+        Maxspeed = Mathf.Lerp(Maxspeed, TargetMaxSpeed, Time.fixedDeltaTime * (Maxspeed < TargetMaxSpeed ? MaxAcceleration : MaxDeceleration));
+        ApplySpeedLimit();
     }
 
-    public float GetMaxSpeed()
+    protected virtual void ApplySpeedLimit()
     {
-        return Maxspeed;
-    }
-
-    protected bool IsWheelGrounded(Wheel wheel)
-    {
-        return wheel.WheelCollider.GetGroundHit(out hit);
+        if (CarRb.linearVelocity.magnitude > Maxspeed) CarRb.linearVelocity = Maxspeed * CarRb.linearVelocity.normalized;
     }
 
     [ContextMenu("Auto Assign Wheels")]
@@ -109,7 +111,7 @@ public class BaseCarController : MonoBehaviour
 
             var Mesh = Meshes.Find(WheelCollider.name);
 
-            wheel.WheelModel = Mesh?.gameObject;
+            wheel.WheelModel = Mesh != null ? Mesh.gameObject : null;
 
             var Effect = Effects.transform.Find(WheelCollider.name);
 
@@ -129,14 +131,6 @@ public class BaseCarController : MonoBehaviour
             Wheels.Add(wheel);
         }
     }
-
-    protected void ApplySpeedLimit(float speed)
-    {
-        // 3.6 is to convert from m/s to km/h and vice versa
-        if (CarRb.linearVelocity.magnitude  > speed) CarRb.linearVelocity = speed * CarRb.linearVelocity.normalized;
-    }
-
-
 
     protected void AdjustSuspension()
     {
@@ -254,9 +248,8 @@ public class BaseCarController : MonoBehaviour
 
             var trailRenderer = wheel.WheelEffectobj.GetComponentInChildren<TrailRenderer>();
             if (trailRenderer == null) continue;
-            bool wheelGrounded = IsWheelGrounded(wheel);
 
-            bool shouldEmit = enable && wheelGrounded;
+            bool shouldEmit = enable && wheel.IsGrounded();
 
             trailRenderer.enabled = true;
 

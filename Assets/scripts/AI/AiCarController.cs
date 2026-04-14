@@ -152,11 +152,6 @@ public class AiCarController : BaseCarController
             targetTorque *= 0.5f;
         }
 
-        if (IsOnGrass())
-        {
-            targetTorque *= GrassSpeedMultiplier;
-        }
-
         // Apply boost if active
         if (isBoosting)
         {

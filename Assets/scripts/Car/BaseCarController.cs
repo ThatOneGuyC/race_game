@@ -38,14 +38,8 @@ public class BaseCarController : MonoBehaviour
     [SerializeField] protected float GravityMultiplier  = 1.5f;
     [SerializeField] protected List<Wheel> Wheels;
     WheelHit hit;
-    [SerializeField] protected float GrassSpeedMultiplier = 0.5f;
-    protected LayerMask Grass;
-    [SerializeField] protected string GrassLayerName = "grass";
     [Header("Trail settings")]
     [SerializeField] protected bool EmitTrailsOnlyWhileDrifting = true;
-    public bool GrassRespawnActive = false;
-    protected bool isOnGrassCached;
-    protected bool isOnGrassCachedValid;
     public float MoveInput;
     public float SteerInput;
     protected Vector3 _CenterofMass;
@@ -56,7 +50,6 @@ public class BaseCarController : MonoBehaviour
     [Header("Drift asetukset")]
     //protected float DriftMultiplier = 1.0f;
     public bool IsDrifting { get; protected set; } = false;
-    protected Color GrassTrailColor = new Color(0.36f, 0.21f, 0.06f);
     protected Color RoadTrailColor = new Color(0.08f, 0.08f, 0.08f);
     internal float PerusMaxAccerelation, PerusTargetTorque, SmoothedMaxAcceleration;
     [Header("turbe asetukset")]
@@ -79,7 +72,6 @@ public class BaseCarController : MonoBehaviour
         carCollider = GetComponentInChildren<MeshCollider>();
         CarWidth = carCollider.bounds.size.x;
         CarLength = carCollider.bounds.size.z;
-        Grass = LayerMask.NameToLayer(GrassLayerName);
         ClearWheelTrails();
     }
 
@@ -135,40 +127,6 @@ public class BaseCarController : MonoBehaviour
                     : Axel.Rear;
 
             Wheels.Add(wheel);
-        }
-    }
-
-    protected bool IsWheelOnGrass(Wheel wheel)
-    {
-        return wheel.WheelCollider.GetGroundHit(out hit) && Grass == hit.collider.gameObject.layer;
-    }
-
-    protected virtual void OnGrass()
-    {
-        foreach (var wheel in Wheels)
-        {
-            bool WheelOnGrass = IsWheelOnGrass(wheel);
-            if (wheel.WheelEffectobj == null) continue;
-
-            var trail = wheel.WheelEffectobj.GetComponentInChildren<TrailRenderer>();
-            if (trail == null) continue;
-
-            trail.startColor = WheelOnGrass ? GrassTrailColor : RoadTrailColor;
-        }
-    }
-
-    protected virtual bool IsOnGrass()
-    {
-        return Wheels.Any(wheel => IsWheelOnGrass(wheel));
-    }
-
-    protected void AdjustSpeedForGrass()
-    {
-        if (IsOnGrass() && !IsTurboActive)
-        {
-            TargetTorque *= GrassSpeedMultiplier;
-
-            Maxspeed = Mathf.Lerp(Maxspeed, Maxspeed * GrassSpeedMultiplier, Time.deltaTime);
         }
     }
 
@@ -246,8 +204,6 @@ public class BaseCarController : MonoBehaviour
             wheel.WheelCollider.steerAngle = Mathf.Lerp(wheel.WheelCollider.steerAngle, _steerAngle, 0.6f);            
         }
     }
-
-    
 
 
     protected void AdjustWheelsForDrift()

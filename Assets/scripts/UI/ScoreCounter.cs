@@ -32,12 +32,6 @@ public class ScoreCounter : MonoBehaviour
     void UpdateScoreUI(string scoreString, string prevScoreString)
     {
         if (numberSprites == null) return;
-        for (int i = 0; i < scoreNumberCount; i++)
-        {
-            char digitChar = scoreString[i];
-            int digit = digitChar - '0';
-
-            if (prevScoreString.Length != scoreNumberCount || prevScoreString[i] != digitChar) if (digit >= 0 && digit <= 9 && numberSprites.Length > digit) scoreNumberImages[i].sprite = numberSprites[digit];
-        }
+        for (int i = 0; i < scoreNumberCount; i++) if (prevScoreString.Length != scoreNumberCount || prevScoreString[i] != scoreString[i]) scoreNumberImages[i].sprite = numberSprites[(byte)(scoreString[i] - '0')];
     }
 }

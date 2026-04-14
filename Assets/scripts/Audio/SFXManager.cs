@@ -46,7 +46,7 @@ public class SFXManager : MonoBehaviour
                 //TODO: dropdown SFX jollai muulla event paskalla
             }
         }
-        PlayerCarColors c = FindFirstObjectByType<PlayerCarColors>();
+        CarColors c = FindFirstObjectByType<CarColors>();
         if (c != null) c.lights = carLightsToggle;
     }
 

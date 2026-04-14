@@ -88,7 +88,7 @@ public class MultCounter : MonoBehaviour
     public void UpdateMultiplierText(float mult)
     {
         multiplierText.text = $"{mult}";
-        multiplierText.color = mult >= 7f ? Color.red : mult >= 4f ? new Color(1f, 0.5f, 0f) : mult >= 2f ? Color.yellow : Color.white;
+        multiplierText.color = mult >= 7f ? Color.red : mult >= 4f ? Color.orange : mult >= 2f ? Color.yellow : Color.white;
     }
 
     public void StartMultiplier(float multiplier, float quality, int mulplierInInt)

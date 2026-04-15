@@ -4,8 +4,7 @@ using UnityEngine.InputSystem;
 using Logitech;
 using System.Collections;
 
-
-
+[RequireComponent(typeof(PlayerInput))]
 public class PlayerCarController : BaseCarController
 {
     public CarInputActions Controls { get; protected set; }
@@ -85,6 +84,12 @@ public class PlayerCarController : BaseCarController
             LGM.GetLogitechInputs();
             LGM.ApplyForceFeedback(); 
         }
+    }
+
+    override protected void ApplySpeedLimit()
+    {
+        TargetMaxSpeed = Mathf.Clamp(TargetMaxSpeed, 0, BaseMaxSpeed);
+        if (CarRb.linearVelocity.magnitude * 3.6f > Maxspeed) CarRb.linearVelocity = Maxspeed / 3.6f * CarRb.linearVelocity.normalized;
     }
 
     private void OnControlsChanged(PlayerInput input)
@@ -251,8 +256,8 @@ public class PlayerCarController : BaseCarController
         AdjustSuspension();
         foreach (var wheel in Wheels)
         {
-            if (Controls.CarControls.Brake.IsPressed()) Brakes(wheel);
-            else MotorTorgue(wheel);
+            if (Controls.CarControls.Brake.IsPressed()) wheel.Brakes(BrakeAcceleration);
+            else wheel.MotorTorque(TargetTorque);
         }
     }
 

@@ -27,6 +27,17 @@ public class BaseCarController : MonoBehaviour
         {
             return WheelCollider.GetGroundHit(out WheelHit hit);
         }
+
+        public void Brakes(float BrakeAcceleration)
+        {
+            WheelCollider.brakeTorque = BrakeAcceleration * 15f;
+        }
+
+        public void MotorTorque(float TargetTorque)
+        {
+            WheelCollider.motorTorque = TargetTorque;
+            WheelCollider.brakeTorque = 0f;
+        }
     }
 
     [Header("Auton asetukset")]
@@ -38,8 +49,9 @@ public class BaseCarController : MonoBehaviour
     [SerializeField] protected float TurnSensitivityAtHighSpeed = 17.5f;
     [SerializeField] protected float TurnSensitivityAtLowSpeed = 30.0f;
     [SerializeField] protected float Deceleration = 1.0f;
-    public float Maxspeed { get; protected set; } = 100.0f;
+    [SerializeField] public float Maxspeed = 100.0f;
     [SerializeField] protected float TargetMaxSpeed = 100.0f;
+    [SerializeField] protected float BaseMaxSpeed = 100.0f;
     [SerializeField] protected List<Wheel> Wheels;
     [Header("Trail settings")]
     public float MoveInput;
@@ -48,7 +60,7 @@ public class BaseCarController : MonoBehaviour
     public float TargetTorque;
     public Rigidbody CarRb { get; protected set; }
     protected float Activedrift = 0.0f;
-    [SerializeField] public float Turbesped = 60.0f, TurbeChargeSped = 80, BaseSpeed = 180f, Grassmaxspeed = 50.0f, DriftMaxSpeed = 140f;
+    public float Turbesped = 60.0f, BaseSpeed = 180f, DriftMaxSpeed = 140f;
     [Header("Drift asetukset")]
     public bool IsDrifting { get; protected set; } = false;
     public float BaseMaxAccerelation { get; protected set; }
@@ -90,6 +102,7 @@ public class BaseCarController : MonoBehaviour
 
     protected virtual void ApplySpeedLimit()
     {
+        TargetMaxSpeed = Mathf.Clamp(TargetMaxSpeed, 0, BaseMaxSpeed);
         if (CarRb.linearVelocity.magnitude > Maxspeed) CarRb.linearVelocity = Maxspeed * CarRb.linearVelocity.normalized;
     }
 
@@ -144,33 +157,6 @@ public class BaseCarController : MonoBehaviour
         }
     }
 
-    protected void AdjustForwardFrictrion()
-    {
-        foreach (var wheel in Wheels)
-        {
-            WheelFrictionCurve forwardFriction = wheel.WheelCollider.forwardFriction;
-            forwardFriction.extremumSlip = 0.8f;
-            forwardFriction.extremumValue = 1;
-            forwardFriction.asymptoteSlip = 1.0f;
-            forwardFriction.asymptoteValue = 1;
-            forwardFriction.stiffness = 7f;
-            wheel.WheelCollider.forwardFriction = forwardFriction;
-        }
-    }
-
-    protected void Brakes(Wheel wheel)
-    {
-        wheel.WheelCollider.brakeTorque = BrakeAcceleration * 15f;
-    }
-
-    protected void MotorTorgue(Wheel wheel)
-    {
-        wheel.WheelCollider.motorTorque = TargetTorque;
-        wheel.WheelCollider.brakeTorque = 0f;
-    }
-
-    
-
     protected void Decelerate()
     {
 
@@ -178,7 +164,7 @@ public class BaseCarController : MonoBehaviour
         {
             Vector3 velocity = CarRb.linearVelocity;
 
-            velocity -= velocity.normalized * Deceleration * 2.0f * Time.deltaTime;
+            velocity -= 2.0f * Deceleration * Time.deltaTime * velocity.normalized;
 
             if (velocity.magnitude < 0.1f)
             {
@@ -194,7 +180,6 @@ public class BaseCarController : MonoBehaviour
     {
         foreach (var wheel in Wheels.Where(w => w.Axel == Axel.Front))
         {
-        
             var _steerAngle = SteerInput * TurnSensitivity * (IsDrifting ? 0.8f : 0.35f);
             wheel.WheelCollider.steerAngle = Mathf.Lerp(wheel.WheelCollider.steerAngle, _steerAngle, 0.6f);            
         }

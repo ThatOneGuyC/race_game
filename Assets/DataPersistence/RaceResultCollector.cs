@@ -52,7 +52,7 @@ public class RaceResultCollector : MonoBehaviour
     {
         if (ScoreManager.instance != null)
         {
-            return ScoreManager.instance.GetScoreInt();
+            return ScoreManager.instance.GetTotalScore();
         }
 
         return 0;

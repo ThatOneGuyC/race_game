@@ -4,9 +4,9 @@ using UnityEngine.UI;
 
 public class LapCounter : MonoBehaviour
 {
-    public Sprite[] numberSprites;
-    public Sprite[] finalLapNumberSprites;
-    public GameObject digitPrefab;
+    [SerializeField] private Sprite[] numberSprites;
+    [SerializeField] private Sprite[] finalLapNumberSprites;
+    [SerializeField] private GameObject digitPrefab;
 
     private Image lapNumberImage;
     private int laps;
@@ -15,14 +15,12 @@ public class LapCounter : MonoBehaviour
     private int previousLap;
     private SFXManager SFXMngr;
 
-    //TODO: if lauseitten poisto ja muutama pieni parannus
-
     void Start()
     {
         SFXMngr = FindFirstObjectByType<SFXManager>(FindObjectsInactive.Exclude);
         if (GameManager.instance.CurrentCar != null) racer = GameManager.instance.CurrentCar.GetComponentInChildren<RacerScript>();
         laps = PlayerPrefs.GetInt("Laps");
-        if (laps == 1) numberSprites = finalLapNumberSprites;
+        numberSprites = laps == 1 ? finalLapNumberSprites : numberSprites;
 
         GameObject digitGO = Instantiate(digitPrefab, transform);
         lapNumberImage = digitGO.GetComponent<Image>();
@@ -38,7 +36,7 @@ public class LapCounter : MonoBehaviour
 
     void UpdateLapUI()
     {
-        if (CurrentLap == laps) numberSprites = finalLapNumberSprites;
+        numberSprites = CurrentLap == laps ? finalLapNumberSprites : numberSprites;
         if (CurrentLap >= 0 && CurrentLap <= 9 && numberSprites.Length > CurrentLap)
         {
             lapNumberImage.sprite = numberSprites[CurrentLap];

@@ -221,15 +221,6 @@ public class PlayerCarController : BaseCarController
         // read non-wheel input (keyboard / gamepad) and mark last-non-wheel time when active
         SteerInput = Controls.CarControls.Move.ReadValue<Vector2>().x;
         float nonWheelMove = Mathf.Abs(SteerInput) + Mathf.Abs(Controls.CarControls.MoveForward.ReadValue<float>()) + Mathf.Abs(Controls.CarControls.MoveBackward.ReadValue<float>());
-        if (nonWheelMove > 0.001f || Controls.CarControls.Drift.IsPressed() || Controls.CarControls.Brake.IsPressed())
-        {
-            if (LGM != null)
-            {
-                LGM.useLogitechWheel = false;
-                LGM.allowAutoEnable = true;
-                LGM.StopAllForceFeedback();
-            }
-        }
         
         if (Controls.CarControls.MoveForward.IsPressed())
             MoveInput = Controls.CarControls.MoveForward.ReadValue<float>();

@@ -76,14 +76,14 @@ public class ScoreManager : MonoBehaviour
 
     public void ShowScores()
     {
-        TotalScoreText.text = "Final Score: " + GetScoreInt();
-        TimeScoreText.text  = "Time: " + Mathf.FloorToInt(TimeStartPoint);
-        DriftScoreText.text = "Drift: " + Mathf.FloorToInt(scoreFloat);
+        TotalScoreText.text = $"Final Score: {GetTotalScore()}";
+        TimeScoreText.text = $"Time: {GetTimeScore()}";
+        DriftScoreText.text = $"Drift: {GetDriftScore()}";
     }
 
-    public int GetScoreInt()  => racerScript != null && racerScript.raceFinished
-        ? Mathf.FloorToInt(scoreFloat + TimeStartPoint)
-        : Mathf.FloorToInt(scoreFloat);
+    public int GetTotalScore() => Mathf.FloorToInt(scoreFloat) + Mathf.FloorToInt(TimeStartPoint);
+    public int GetTimeScore() => Mathf.FloorToInt(TimeStartPoint);
+    public int GetDriftScore() => Mathf.FloorToInt(scoreFloat);
     public float GetDriftTime() => driftTime;
     public void  SetScoreMultiplier(float m) => scoreMultiplier = m;
 

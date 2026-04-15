@@ -76,9 +76,9 @@ public class TrailerCameraFollow : MonoBehaviour
             return;
         }
 
-        // Start moving when Space is pressed
+        /* // Start moving when Space is pressed
         if (Input.GetKeyDown(KeyCode.Space))
-            isPlaying = true;
+            isPlaying = true; */
 
         if ((autoPlay || isPlaying) && trailerCamera != null && bezierPoints.Count > 1)
         {
@@ -88,9 +88,9 @@ public class TrailerCameraFollow : MonoBehaviour
 #else
     private void Update()
     {
-        // Start moving when Space is pressed
+        /* // Start moving when Space is pressed
         if (Input.GetKeyDown(KeyCode.Space))
-            isPlaying = true;
+            isPlaying = true; */
 
         if ((autoPlay || isPlaying) && trailerCamera != null && bezierPoints.Count > 1)
         {

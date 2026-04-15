@@ -4,14 +4,14 @@ using UnityEngine.UI;
 
 public class ScoreCounter : MonoBehaviour
 {
-    public Sprite[] numberSprites;
-    public GameObject digitPrefab;
+    [SerializeField] private Sprite[] numberSprites;
+    [SerializeField] private GameObject digitPrefab;
 
     private const int scoreNumberCount = 7;
     private Image[] scoreNumberImages = new Image[scoreNumberCount];
-    private string ScoreString => Score.ToString().PadLeft(scoreNumberCount, '0');
+    private string ScoreString => $"{Score}".PadLeft(scoreNumberCount, '0');
     private string lastScoreString = "";
-    private int Score => ScoreManager.instance.GetScoreInt();
+    private int Score => ScoreManager.instance.GetDriftScore();
 
     void Start()
     {

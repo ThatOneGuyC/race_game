@@ -1012,7 +1012,7 @@ public partial class @CarInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""binding"",
                     ""id"": ""97603a3d-7f35-4f97-bb68-249b4b3b43ba"",
-                    ""path"": ""<Keyboard>/p"",
+                    ""path"": ""<Keyboard>/semicolon"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

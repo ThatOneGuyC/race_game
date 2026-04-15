@@ -21,6 +21,7 @@ public class ScoreCounter : MonoBehaviour
             scoreNumberImages[i] = number.GetComponent<Image>();
             if (scoreNumberImages[i] == null) throw new NullReferenceException($"index of {i} was null in scoreNumberImages");
         }
+        if (numberSprites == null) throw new NullReferenceException($"numberSprites is null");
     }
 
     void Update()
@@ -31,7 +32,6 @@ public class ScoreCounter : MonoBehaviour
 
     void UpdateScoreUI(string scoreString, string prevScoreString)
     {
-        if (numberSprites == null) return;
         for (int i = 0; i < scoreNumberCount; i++) if (prevScoreString.Length != scoreNumberCount || prevScoreString[i] != scoreString[i]) scoreNumberImages[i].sprite = numberSprites[(byte)(scoreString[i] - '0')];
     }
 }

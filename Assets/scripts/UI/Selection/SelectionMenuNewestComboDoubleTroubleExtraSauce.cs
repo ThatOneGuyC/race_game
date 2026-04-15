@@ -369,7 +369,7 @@ public class SelectionMenuNewestComboDoubleTroubleExtraSauce : MonoBehaviour
         LeanTween.value(loadingImg, loadingImg.GetComponent<RectTransform>().anchoredPosition.y, 0.0f, 1f).setOnUpdate((float val) => { loadingImg.GetComponent<RectTransform>().anchoredPosition = new Vector2(loadingImg.GetComponent<RectTransform>().anchoredPosition.x, val); }).setEaseInOutCubic();
 
         Controls.Disable();
-        Debug.Log("you will now wait for: " + schizophrenia + " seconds");
+        Debug.Log($"you will now wait for: {schizophrenia} seconds");
         yield return new WaitForSeconds(schizophrenia);
         
         SceneManager.LoadSceneAsync(PlayerPrefs.GetString("SelectedMap"));

@@ -47,7 +47,8 @@ public class BaseCarController : MonoBehaviour
     protected Vector3 _CenterofMass;
     public float TargetTorque;
     public Rigidbody CarRb { get; protected set; }
-    [SerializeField] protected float Turbesped = 60.0f, TurbeChargeSped = 80, BaseSpeed = 180f, DriftMaxSpeed = 140f;
+    protected float Activedrift = 0.0f;
+    [SerializeField] public float Turbesped = 60.0f, TurbeChargeSped = 80, BaseSpeed = 180f, Grassmaxspeed = 50.0f, DriftMaxSpeed = 140f;
     [Header("Drift asetukset")]
     public bool IsDrifting { get; protected set; } = false;
     public float BaseMaxAccerelation { get; protected set; }

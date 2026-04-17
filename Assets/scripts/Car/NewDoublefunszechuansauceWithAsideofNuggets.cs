@@ -10,6 +10,7 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
     private string CurrentControlScheme;
     PlayerInput PlayerInput;
 
+
     void Awake()
     {
         Controls = new CarInputActions();
@@ -101,49 +102,47 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
     {
         Animatewheels();
         GetInputs();
+
         Steer();
         Move();
+        ApplySpeedLimit(Maxspeed / 3.6f);
         Decelerate();
-        foreach (var Wheel in Wheels)
-        {
-            Brakes(Wheel);
-        }
+
     }
     
     //physics related will go here
     protected void FixedUpdate()
     {
-        float speed = CarRb.linearVelocity.magnitude;
-        ApplySpeedLimit(Maxspeed / 3.6f);
-        Applyturnsensitivity(speed);
-    }
 
+        Applyturnsensitivity(GetSpeed());
+    }
 
     private void Move()
     {
-        CarMovement();  
+        CarMovement();
+        foreach (var wheel in Wheels)
+        {
+            if (Controls.CarControls.Brake.IsPressed()) Brakes(wheel);
+            else MotorTorgue(wheel);
+        }  
     }
 
     void GetInputs()
     {
-        //reads inputs and assigns them to values 
-        SteerInput = Controls.CarControls.Move.ReadValue<Vector2>().x;
-        
-        if (Controls.CarControls.MoveForward.IsPressed()){
-            MoveInput = Controls.CarControls.MoveForward.ReadValue<float>();
-        }
-        else if (Controls.CarControls.MoveBackward.IsPressed())
-            MoveInput = -Controls.CarControls.MoveBackward.ReadValue<float>();
-        else
-            MoveInput = 0f;
+
+        Vector2 move = Controls.CarControls.Move.ReadValue<Vector2>();
+        SteerInput = move.x;
+        MoveInput = move.y;
 
     }
     //Arcade car style movement
     protected void CarMovement()
     {
-        float forwardvalue = Mathf.Abs(MoveInput);
-        Vector3 forwardMovement = transform.forward * Maxspeed * forwardvalue;
-        CarRb.linearVelocity = forwardMovement;
+        float forwardValue = Mathf.Abs(MoveInput);
+       
+        float targetSpeedMs = Maxspeed  * forwardValue;
+        Vector3 flatForwardVelocity = transform.forward * targetSpeedMs;
+        CarRb.linearVelocity = new Vector3(flatForwardVelocity.x, CarRb.linearVelocity.y, flatForwardVelocity.z);
     }
 
 

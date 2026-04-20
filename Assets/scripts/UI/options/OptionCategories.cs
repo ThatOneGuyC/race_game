@@ -33,7 +33,7 @@ public class OptionCategories : MonoBehaviour
         Controls.CarControls.carskinright.performed -= ctx => ChangeCategoryManual(true);
         Controls.CarControls.carskinleft.performed -= ctx => ChangeCategoryManual(false);
     }
-    //TODO: tiedät jo kyl mikä tän ongelma on
+    //TODO: ok vittu tää pitää korjata nyt
     private void ChangeCategoryManual(bool change)
     {
         if (index > CategoryButtonList.Count - 1 || index < 0) return;

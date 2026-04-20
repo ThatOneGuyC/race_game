@@ -7,15 +7,12 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private AudioSource menuMusic;
     private int musictweenIDstart = -1;
     private int musictweenIDend = -1;
-    private GameObject optionspanel;
 
     [SerializeField] private GameObject playConfirmPanel;
 
     void Awake()
     {
         Time.timeScale = 1;
-        optionspanel = GetComponentInChildren<OptionScript>().gameObject;
-        optionspanel.SetActive(false);
     }
     void Start()
     {

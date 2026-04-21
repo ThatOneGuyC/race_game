@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Splines;
 
@@ -19,28 +18,18 @@ public class SplineMeshExtrude : MonoBehaviour
         public Material material;
     }
 
-    [SerializeField]
-    private List<SegmentPreset> segmentPresets = new List<SegmentPreset>();
-    [SerializeField]
-    private Axis extrusionAxis;
-    [SerializeField]
-    private Vector3 localMeshScale = Vector3.one;
-    [SerializeField]
-    private float extrusionInterval = 10f;
-    [SerializeField]
-    private bool smoothFaces = true;
-    [SerializeField]
-    private bool useWorldUp = true;
-
-    [SerializeField]
-    private Vector3 meshRotationOffset = Vector3.zero; // Allows rotating the mesh to face the spline
+    [SerializeField] private List<SegmentPreset> segmentPresets = new List<SegmentPreset>();
+    [SerializeField] private Axis extrusionAxis = Axis.X;
+    [SerializeField] private Vector3 localMeshScale = Vector3.one;
+    [SerializeField] private float extrusionInterval = 10f;
+    [SerializeField] private bool smoothFaces = true;
+    [SerializeField] private bool useWorldUp = true;
+    [SerializeField] private Vector3 meshRotationOffset = Vector3.zero;
 
     private MeshCollider meshCollider;
     private MeshFilter meshFilter;
     private SplineContainer splineContainer;
     private Spline spline;
-
-    private Vector3[] templateVertices;
 
     private void OnEnable()
     {
@@ -56,61 +45,66 @@ public class SplineMeshExtrude : MonoBehaviour
 
     private void OnValidate()
     {
-        // OnValidate can trigger before OnEnable in some cases, so ensure components are ready
-        if (meshFilter == null || splineContainer == null) 
+        if (meshFilter == null || splineContainer == null)
             InitializeComponents();
 
         RebuildMesh();
     }
 
-    private void OnSplineChanged(Spline spline, int knotIndex, SplineModification modificationType)
+    private void OnSplineChanged(Spline changedSpline, int knotIndex, SplineModification modificationType)
     {
-        // Rebuild when the spline points are moved
-        if (this.spline == spline)
-        {
+        if (spline == changedSpline)
             RebuildMesh();
-        }
     }
 
     private void InitializeComponents()
     {
-        meshCollider = gameObject.GetComponent<MeshCollider>();
-        meshFilter = gameObject.GetComponent<MeshFilter>();
-        if (!meshFilter)
-            Debug.LogError($"SplineMeshExtrude: Gameobject {gameObject.name} does not have an attached mesh filter.");
+        meshCollider = GetComponent<MeshCollider>();
+        meshFilter = GetComponent<MeshFilter>();
+        if (meshFilter == null)
+            Debug.LogError($"SplineMeshExtrude: GameObject {gameObject.name} is missing a MeshFilter.");
 
-        splineContainer = gameObject.GetComponent<SplineContainer>();
-        spline = splineContainer?.Spline;
+        splineContainer = GetComponent<SplineContainer>();
+        spline = splineContainer != null ? splineContainer.Spline : null;
     }
 
     private void RebuildMesh()
     {
-        if (spline == null || segmentPresets == null || segmentPresets.Count == 0 || meshFilter == null) return;
+        if (spline == null || meshFilter == null || segmentPresets == null || segmentPresets.Count == 0)
+            return;
 
         Mesh generatedMesh = GenerateMesh();
         meshFilter.sharedMesh = generatedMesh;
 
-        MeshRenderer renderer = gameObject.GetComponent<MeshRenderer>();
+        MeshRenderer renderer = GetComponent<MeshRenderer>();
         if (renderer != null)
         {
             Material[] mats = new Material[segmentPresets.Count];
-            for(int i=0; i<segmentPresets.Count; i++)
+            for (int i = 0; i < segmentPresets.Count; i++)
                 mats[i] = segmentPresets[i].material;
             renderer.sharedMaterials = mats;
         }
 
-        if (meshCollider)
+        if (meshCollider != null)
             meshCollider.sharedMesh = generatedMesh;
     }
 
     private Mesh GenerateMesh()
     {
         Mesh mesh = new Mesh();
-        bool success = SplineUtil.SampleSplineInterval(spline, transform, extrusionInterval, 
-                                                       out Vector3[] positions, out Vector3[] tangents, out Vector3[] upVectors);
-        if (!success)
+
+        bool success = SplineUtil.SampleSplineInterval(
+            spline,
+            transform,
+            extrusionInterval,
+            out Vector3[] positions,
+            out Vector3[] tangents,
+            out Vector3[] upVectors
+        );
+
+        if (!success || positions == null || positions.Length < 2)
         {
-            Debug.LogError("SplineMeshExtrude: GenerateMesh: Error encountered when sampling spline. Aborting");
+            Debug.LogError("SplineMeshExtrudeFeaturePreserving: Failed to sample spline.");
             return mesh;
         }
 
@@ -122,151 +116,207 @@ public class SplineMeshExtrude : MonoBehaviour
         for (int i = 0; i < segmentPresets.Count; i++)
             subMeshTriangles.Add(new List<int>());
 
-        int curveCount = spline.GetCurveCount();
+        int curveCount = Mathf.Max(1, spline.GetCurveCount());
 
         for (int i = 0; i < positions.Length - 1; i++)
         {
             float tValue = (float)i / (positions.Length - 1);
             int segmentIndex = Mathf.FloorToInt(tValue * curveCount);
-            if (segmentIndex >= curveCount) segmentIndex = curveCount - 1;
+            if (segmentIndex >= curveCount)
+                segmentIndex = curveCount - 1;
 
             int presetIndex = segmentIndex < segmentPresets.Count ? segmentIndex : segmentPresets.Count - 1;
-            SegmentPreset currentPreset = segmentPresets[presetIndex];
-            
-            Mesh currentTemplateMesh = currentPreset.templateMesh;
-            if (currentTemplateMesh == null)
+            SegmentPreset preset = segmentPresets[presetIndex];
+
+            Mesh templateMesh = preset.templateMesh;
+            if (templateMesh == null)
             {
-                currentPreset = segmentPresets[0];
-                currentTemplateMesh = currentPreset.templateMesh;
+                templateMesh = segmentPresets[0].templateMesh;
                 presetIndex = 0;
-                if (currentTemplateMesh == null) continue;
+                if (templateMesh == null)
+                    continue;
             }
 
-            // distinguish verticies from first and second edges
-            (int[] firstEdge, int[] secondEdge) = GetEdgeIndicies(currentTemplateMesh.vertices, extrusionAxis);
+            bool isClosedSpline = spline.Closed;
+            bool keepStartCap = !isClosedSpline && i == 0;
+            bool keepEndCap = !isClosedSpline && i == positions.Length - 2;
 
-            templateVertices = CollapsePointsOnAxis(currentTemplateMesh.vertices, extrusionAxis);
-            templateVertices = templateVertices.Select(position => Vector3.Scale(position, localMeshScale)).ToArray();
-
-            AppendMeshSegment(vertices, subMeshTriangles[presetIndex], normals, uvs,
-                              positions[i], tangents[i], upVectors[i], positions[i + 1], tangents[i + 1], upVectors[i + 1],
-                              firstEdge, secondEdge, currentTemplateMesh);
+            AppendMeshSegmentPreservingFeatures(
+                vertices,
+                subMeshTriangles[presetIndex],
+                normals,
+                uvs,
+                positions[i],
+                tangents[i],
+                upVectors[i],
+                positions[i + 1],
+                tangents[i + 1],
+                upVectors[i + 1],
+                templateMesh,
+                keepStartCap,
+                keepEndCap
+            );
         }
 
         mesh.vertices = vertices.ToArray();
-        mesh.normals = normals.ToArray();
         mesh.uv = uvs.ToArray();
+
+        if (normals.Count == vertices.Count)
+            mesh.normals = normals.ToArray();
+        else
+            mesh.RecalculateNormals();
 
         mesh.subMeshCount = segmentPresets.Count;
         for (int i = 0; i < segmentPresets.Count; i++)
-        {
             mesh.SetTriangles(subMeshTriangles[i].ToArray(), i);
-        }
 
+        mesh.RecalculateBounds();
         return mesh;
     }
 
-    private void AppendMeshSegment(List<Vector3> vertices, List<int> triangles, List<Vector3> normals, List<Vector2> uvs,
-        Vector3 firstPos, Vector3 firstTangent, Vector3 firstUp, Vector3 secondPos, Vector3 secondTangent, Vector3 secondUp, 
-        int[] firstEdgeIndicies, int[] secondEdgeIndicies, Mesh extrusionTemplateMesh)
+    private void AppendMeshSegmentPreservingFeatures(
+        List<Vector3> vertices,
+        List<int> triangles,
+        List<Vector3> normals,
+        List<Vector2> uvs,
+        Vector3 firstPos,
+        Vector3 firstTangent,
+        Vector3 firstUp,
+        Vector3 secondPos,
+        Vector3 secondTangent,
+        Vector3 secondUp,
+        Mesh templateMesh,
+        bool keepStartCap,
+        bool keepEndCap
+    )
     {
-        Vector3[] newVertices = new Vector3[templateVertices.Length];
-        Vector3[] newNormals = new Vector3[extrusionTemplateMesh.normals.Length];
+        Vector3[] sourceVertices = templateMesh.vertices;
+        if (sourceVertices == null || sourceVertices.Length == 0)
+            return;
 
-        // 1. Calculate offset rotation from the inspector
+        Vector3[] sourceNormals = templateMesh.normals;
+        Vector2[] sourceUVs = templateMesh.uv;
+        int[] sourceTriangles = templateMesh.triangles;
+
+        bool hasNormals = sourceNormals != null && sourceNormals.Length == sourceVertices.Length;
+        bool hasUVs = sourceUVs != null && sourceUVs.Length == sourceVertices.Length;
+
+        int axisIndex = GetAxisIndex(extrusionAxis);
+        bool axisNegative = IsNegativeAxis(extrusionAxis);
+
+        Vector3[] scaledVertices = new Vector3[sourceVertices.Length];
+        float minAxis = float.PositiveInfinity;
+        float maxAxis = float.NegativeInfinity;
+
+        for (int i = 0; i < sourceVertices.Length; i++)
+        {
+            Vector3 scaled = Vector3.Scale(sourceVertices[i], localMeshScale);
+            scaledVertices[i] = scaled;
+
+            float axisValue = GetSignedAxisValue(scaled, axisIndex, axisNegative);
+            if (axisValue < minAxis) minAxis = axisValue;
+            if (axisValue > maxAxis) maxAxis = axisValue;
+        }
+
+        float axisRange = maxAxis - minAxis;
+        if (axisRange < 0.00001f)
+            axisRange = 1f;
+
         Quaternion offsetRotation = Quaternion.Euler(meshRotationOffset);
+        Quaternion firstRotation = BuildRotation(firstTangent, firstUp) * offsetRotation;
+        Quaternion secondRotation = BuildRotation(secondTangent, secondUp) * offsetRotation;
 
-        Quaternion rotation = useWorldUp ? Quaternion.LookRotation(new Vector3(firstTangent.x, 0, firstTangent.z), Vector3.up) : 
-                                           Quaternion.LookRotation(firstTangent, firstUp);
-        Quaternion flatRotation = Quaternion.identity;
+        Quaternion flatNormalRotation = Quaternion.identity;
         if (!smoothFaces)
         {
+            Vector3 avgTangent = firstTangent + secondTangent;
             if (useWorldUp)
+                avgTangent = new Vector3(avgTangent.x, 0f, avgTangent.z);
+
+            Vector3 avgUp = useWorldUp ? Vector3.up : (firstUp + secondUp);
+            flatNormalRotation = BuildRotation(avgTangent, avgUp) * offsetRotation;
+        }
+
+        int baseVertexIndex = vertices.Count;
+
+        for (int i = 0; i < scaledVertices.Length; i++)
+        {
+            float axisValue = GetSignedAxisValue(scaledVertices[i], axisIndex, axisNegative);
+            float t = Mathf.Clamp01((axisValue - minAxis) / axisRange);
+
+            Vector3 center = Vector3.Lerp(firstPos, secondPos, t);
+            Quaternion frameRotation = Quaternion.Slerp(firstRotation, secondRotation, t);
+
+            Vector3 crossOffset = RemoveAxisComponent(scaledVertices[i], axisIndex);
+            vertices.Add(center + (frameRotation * crossOffset));
+
+            if (hasNormals)
             {
-                Vector3 avgTangentDir = new Vector3(firstTangent.x + secondTangent.x, 0, firstTangent.z + secondTangent.z);
-                flatRotation = Quaternion.LookRotation(avgTangentDir, Vector3.up);
+                Quaternion normalRotation = smoothFaces
+                    ? Quaternion.Slerp(firstRotation, secondRotation, t)
+                    : flatNormalRotation;
+                normals.Add(normalRotation * sourceNormals[i]);
             }
             else
             {
-                Vector3 avgTangentDir = firstTangent + secondTangent;
-                Vector3 avgUpDir = firstUp + secondUp;
-                flatRotation = Quaternion.LookRotation(avgTangentDir, avgUpDir);
+                normals.Add(Vector3.up);
             }
-        }
-        
-        Quaternion normalRotation = smoothFaces ? rotation : flatRotation;
 
-        // Apply offset to the first edge
-        Quaternion finalRotationFirst = rotation * offsetRotation;
-        Quaternion finalNormalRotationFirst = normalRotation * offsetRotation;
-
-        foreach (int index in firstEdgeIndicies)
-        {
-            newVertices[index] = (finalRotationFirst * templateVertices[index]) + firstPos;
-            newNormals[index] = finalNormalRotationFirst * extrusionTemplateMesh.normals[index];
+            uvs.Add(hasUVs ? sourceUVs[i] : Vector2.zero);
         }
 
-        rotation = useWorldUp ? Quaternion.LookRotation(new Vector3(secondTangent.x, 0, secondTangent.z), Vector3.up) :
-                                Quaternion.LookRotation(secondTangent, secondUp);
-        normalRotation = smoothFaces ? rotation : flatRotation;
-
-        // Apply offset to the second edge
-        Quaternion finalRotationSecond = rotation * offsetRotation;
-        Quaternion finalNormalRotationSecond = normalRotation * offsetRotation;
-
-        foreach (int index in secondEdgeIndicies)
-        {
-            newVertices[index] = (finalRotationSecond * templateVertices[index]) + secondPos;
-            newNormals[index] = finalNormalRotationSecond * extrusionTemplateMesh.normals[index];
-        }
-
-        int prevVerticiesLength = vertices.Count;
-
-        vertices.AddRange(newVertices);
-        triangles.AddRange(extrusionTemplateMesh.triangles.Select(index => index + prevVerticiesLength));
-        normals.AddRange(newNormals);
-        uvs.AddRange(extrusionTemplateMesh.uv);
+        for (int i = 0; i < sourceTriangles.Length; i++)
+            triangles.Add(sourceTriangles[i] + baseVertexIndex);
     }
 
-    private (int[] first, int[] second) GetEdgeIndicies(Vector3[] templateVertices, Axis axis)
+    private Quaternion BuildRotation(Vector3 tangent, Vector3 up)
     {
-        List<int> firstIndicies = new List<int>();
-        List<int> secondIndicies = new List<int>();
+        Vector3 forward = useWorldUp
+            ? new Vector3(tangent.x, 0f, tangent.z)
+            : tangent;
 
-        // Find the correct index (0 for X, 1 for Y, 2 for Z)
-        int vectorIndex = (axis == Axis.X || axis == Axis.NegativeX) ? 0 : 
-                          (axis == Axis.Y || axis == Axis.NegativeY) ? 1 : 2;
+        if (forward.sqrMagnitude < 0.000001f)
+            forward = Vector3.forward;
+        forward.Normalize();
 
-        // Determine if we need to flip the logic for negative axes
-        bool isNegative = axis == Axis.NegativeX || axis == Axis.NegativeY || axis == Axis.NegativeZ;
+        Vector3 upDir = useWorldUp ? Vector3.up : up;
+        if (upDir.sqrMagnitude < 0.000001f)
+            upDir = Vector3.up;
+        upDir.Normalize();
 
-        for (int i = 0; i < templateVertices.Length; i++)
-        {
-            bool condition = isNegative ? templateVertices[i][vectorIndex] > 0 : templateVertices[i][vectorIndex] < 0;
-            
-            if (condition)
-                firstIndicies.Add(i);
-            else
-                secondIndicies.Add(i);
-        }
-
-        return (firstIndicies.ToArray(), secondIndicies.ToArray());
+        return Quaternion.LookRotation(forward, upDir);
     }
 
-    // set the specified axis to zero for each point
-    // returns a new array, and does not modify the input array
-    private Vector3[] CollapsePointsOnAxis(Vector3[] points, Axis axis)
+    private static int GetAxisIndex(Axis axis)
     {
-        Vector3[] collapsedPoints = new Vector3[points.Length];
-        Vector3 axisCollapseVector = (axis == Axis.X || axis == Axis.NegativeX) ? new Vector3(0, 1, 1) :
-                                     (axis == Axis.Y || axis == Axis.NegativeY) ? new Vector3(1, 0, 1) : 
-                                                                                  new Vector3(1, 1, 0);
-
-        for (int i = 0; i < points.Length; i++)
+        switch (axis)
         {
-            // element wise multiplication
-            collapsedPoints[i] = Vector3.Scale(points[i], axisCollapseVector);
+            case Axis.X:
+            case Axis.NegativeX:
+                return 0;
+            case Axis.Y:
+            case Axis.NegativeY:
+                return 1;
+            default:
+                return 2;
         }
-        return collapsedPoints;
+    }
+
+    private static bool IsNegativeAxis(Axis axis)
+    {
+        return axis == Axis.NegativeX || axis == Axis.NegativeY || axis == Axis.NegativeZ;
+    }
+
+    private static float GetSignedAxisValue(Vector3 v, int axisIndex, bool negativeAxis)
+    {
+        float value = axisIndex == 0 ? v.x : (axisIndex == 1 ? v.y : v.z);
+        return negativeAxis ? -value : value;
+    }
+
+    private static Vector3 RemoveAxisComponent(Vector3 v, int axisIndex)
+    {
+        if (axisIndex == 0) return new Vector3(0f, v.y, v.z);
+        if (axisIndex == 1) return new Vector3(v.x, 0f, v.z);
+        return new Vector3(v.x, v.y, 0f);
     }
 }

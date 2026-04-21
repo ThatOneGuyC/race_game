@@ -23,9 +23,8 @@ public class OptionScript : MonoBehaviour
 
     void Start()
     {
-        //vois koittaa välttää tämmöstä awake > start juttua. hauska juttu myös VOLUME EI PIDÄ AWAKEN KÄYTÖSTÄ
         InitializeVolumeSliders();
-        //gameObject.SetActive(false);
+        gameObject.SetActive(false);
     }
 
     public void InitializeOptions()

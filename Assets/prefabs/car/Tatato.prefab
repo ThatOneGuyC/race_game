@@ -625,6 +625,7 @@ GameObject:
   - component: {fileID: 4725582504891344223}
   - component: {fileID: 8914551668265311642}
   - component: {fileID: 5630865942300931916}
+  - component: {fileID: 4668002584326815313}
   m_Layer: 0
   m_Name: car
   m_TagString: Untagged
@@ -695,33 +696,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxAcceleration: 1000
+  MaxDeceleration: 700
   BrakeAcceleration: 200
   TurnSensitivity: 1
   TurnSensitivityAtHighSpeed: 17.5
   TurnSensitivityAtLowSpeed: 30
   Deceleration: 1
   Maxspeed: 200
-  GravityMultiplier: 1.5
+  TargetMaxSpeed: 100
+  BaseMaxSpeed: 100
   Wheels: []
-  GrassSpeedMultiplier: 0.5
-  GrassLayerName: Grass
-  EmitTrailsOnlyWhileDrifting: 1
-  GrassRespawnActive: 0
   MoveInput: 0
   SteerInput: 0
+  TargetTorque: 0
   Turbesped: 60
-  TurbeChargeSped: 80
   BaseSpeed: 120
-  Grassmaxspeed: 50
   DriftMaxSpeed: 100
-  TurbeAmount: 40
   TurbeMax: 40
   Turbepush: 50
-  turbechargepush: 20
   TurbeReduce: 15
   TurbeRegen: 15
   TurbeWaitTime: 2
-  selectedTurboType: 0
   LastNonWheelInputTime: 0
   LastWheelInputTime: 0
 --- !u!114 &8914551668265311642
@@ -757,6 +752,36 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   duration: 3
   lights: {fileID: 0}
+--- !u!114 &4668002584326815313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3496182830567923885}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+  m_Actions: {fileID: -944628639613478452, guid: 53472e6d66c2c0f4ba2cc137f3d2721b, type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: 
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!1 &3689803584756702517
 GameObject:
   m_ObjectHideFlags: 0
@@ -1767,8 +1792,8 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6ece4d579db479144b95489319d9b453, type: 2}
-  - {fileID: 2100000, guid: 6ece4d579db479144b95489319d9b453, type: 2}
+  - {fileID: 2100000, guid: 6087d768d9793b449b7134276e09e853, type: 2}
+  - {fileID: 2100000, guid: a1f86d78d586e074dbe264c437dfa775, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

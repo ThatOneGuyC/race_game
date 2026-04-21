@@ -26,8 +26,7 @@ public class PlayerCarController : BaseCarController
     internal float LastNonWheelInputTime = 0f;
     internal float LastWheelInputTime = 0f;
 
-
-    
+    private Material carLightsMaterial;
 
     new void  Awake()
     {
@@ -35,6 +34,7 @@ public class PlayerCarController : BaseCarController
         Controls.Enable();
         PlayerInput = GetComponent<PlayerInput>();
         TurbeBar = GameManager.instance.CarUI.transform.Find("TurbeDisplay").GetComponentInChildren<Image>();
+        carLightsMaterial = GetComponentInChildren<Renderer>().materials[1];
         AutoAssignWheelsAndMaterials();
     }
 
@@ -258,6 +258,9 @@ public class PlayerCarController : BaseCarController
 
     void Move()
     {
+        if (Controls.CarControls.Brake.IsPressed()) carLightsMaterial.SetVector("_EmissionColor", new Vector4(1f, 0.0491371f, 0f, 1f) * 2f);
+        else if (carLightsMaterial.GetVector("_EmissionColor") != new Vector4(0f, 0f, 0f, 1f) * 2f) carLightsMaterial.SetVector("_EmissionColor", new Vector4(0f, 0f, 0f, 1f) * 2f);
+
         CarMovement();
         AdjustSuspension();
         foreach (var wheel in Wheels)

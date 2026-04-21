@@ -734,33 +734,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxAcceleration: 1000
+  MaxDeceleration: 700
   BrakeAcceleration: 200
   TurnSensitivity: 1
   TurnSensitivityAtHighSpeed: 17.5
   TurnSensitivityAtLowSpeed: 30
   Deceleration: 1
   Maxspeed: 190
-  GravityMultiplier: 1.5
+  TargetMaxSpeed: 100
+  BaseMaxSpeed: 100
   Wheels: []
-  GrassSpeedMultiplier: 0.5
-  GrassLayerName: Grass
-  EmitTrailsOnlyWhileDrifting: 1
-  GrassRespawnActive: 0
   MoveInput: 0
   SteerInput: 0
+  TargetTorque: 0
   Turbesped: 60
-  TurbeChargeSped: 80
   BaseSpeed: 130
-  Grassmaxspeed: 50
   DriftMaxSpeed: 100
-  TurbeAmount: 100
   TurbeMax: 100
   Turbepush: 15
-  turbechargepush: 20
   TurbeReduce: 20
   TurbeRegen: 15
   TurbeWaitTime: 2
-  selectedTurboType: 0
 --- !u!114 &187602521392888673
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -807,29 +801,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NewDoublefunszechuansauceWithAsideofNuggets
   MaxAcceleration: 700
+  MaxDeceleration: 700
   BrakeAcceleration: 500
   TurnSensitivity: 1
   TurnSensitivityAtHighSpeed: 17.5
   TurnSensitivityAtLowSpeed: 30
   Deceleration: 1
   Maxspeed: 100
-  GravityMultiplier: 1.5
+  TargetMaxSpeed: 100
+  BaseMaxSpeed: 100
   Wheels: []
-  GrassSpeedMultiplier: 0.5
-  GrassLayerName: grass
-  EmitTrailsOnlyWhileDrifting: 1
-  GrassRespawnActive: 0
   MoveInput: 0
   SteerInput: 0
+  TargetTorque: 0
   Turbesped: 60
-  TurbeChargeSped: 80
   BaseSpeed: 180
-  Grassmaxspeed: 50
   DriftMaxSpeed: 140
-  TurbeAmount: 100
   TurbeMax: 100
   Turbepush: 15
-  turbechargepush: 20
   TurbeReduce: 10
   TurbeRegen: 10
   TurbeWaitTime: 2
@@ -1023,8 +1012,8 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c25c75d470cc8a045babd380c1d2bdb3, type: 2}
-  - {fileID: 2100000, guid: c25c75d470cc8a045babd380c1d2bdb3, type: 2}
+  - {fileID: 2100000, guid: 7509428f88a64354085a0b6c5a9b8bbb, type: 2}
+  - {fileID: 2100000, guid: a1f86d78d586e074dbe264c437dfa775, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

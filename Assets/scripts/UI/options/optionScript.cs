@@ -49,12 +49,10 @@ public class OptionScript : MonoBehaviour
     {
         var valueName = $"{toggle.name}_value";
         toggle.isOn = PlayerPrefs.HasKey(valueName) ? PlayerPrefs.GetInt(valueName) == 1 : DefaultToggleValue;
-        //Debug.Log($"toggle {toggle} init; value: {toggle.isOn}");
 
         toggle.onValueChanged.AddListener((value) =>
         {
             PlayerPrefs.SetInt(valueName, value ? 1 : 0);
-            //Debug.Log($"changed: {toggle.name}, with value of {toggle.isOn}");
         });
     }
     private void InitSpecificOptionValue(Slider slider)
@@ -63,13 +61,10 @@ public class OptionScript : MonoBehaviour
         slider.value = PlayerPrefs.HasKey(valueName) ? PlayerPrefs.GetFloat(valueName) : DefaultSliderValue;
         //TODO: näistä vitun hardkoodatuista paskoista pitää päästä eroon
         if (slider.name == "pixel" && !PlayerPrefs.HasKey(valueName)) slider.value = 5f;
-        //Debug.Log($"toggle {slider} init; value: {slider.value}");
         
         slider.onValueChanged.AddListener((value) =>
         {
             PlayerPrefs.SetFloat(valueName, value);
-            //Debug.Log($"changed: {slider.name}, with value of {slider.value}");
-
             if (slider.name == "pixel") pixelCount.SetFloat("_pixelcount", slider.value * 64f);
         });
     }
@@ -77,12 +72,10 @@ public class OptionScript : MonoBehaviour
     {
         var valueName = $"{dropdown.name}_value";
         dropdown.value = PlayerPrefs.HasKey(valueName) ? PlayerPrefs.GetInt(valueName) : DefaultDropdownValue;
-        //Debug.Log($"toggle {dropdown} init; value: {dropdown.value}");
         
         dropdown.onValueChanged.AddListener((value) =>
         {
             PlayerPrefs.SetInt(valueName, value);
-            //Debug.Log($"changed: {dropdown.name}, with value of {dropdown.value}");
         });
     }
 

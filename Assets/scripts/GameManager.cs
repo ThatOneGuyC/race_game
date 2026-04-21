@@ -24,15 +24,10 @@ public class GameManager : MonoBehaviour
     public string sceneSelected => SceneManager.GetActiveScene().name;
     private readonly string[] maps = new string[]
     {
-        "haukipudas",
-        "haukipudas_night",
-        "ai_haukipudas",
-        "ai_haukipudas_night",
-        "tutorial",
+        "shoreline",
+        "shoreline_night",
         "canyon",
-        "canyon_night",
-        "ai_canyon",
-        "ai_canyon_night"
+        "canyon_night"
     };
 
     void Awake()

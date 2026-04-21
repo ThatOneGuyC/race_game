@@ -2,22 +2,34 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using Logitech;
+using System.Linq;
 using System.Collections;
+using UnityEngine.Rendering.Universal;
 
-[RequireComponent(typeof(PlayerInput))]
+
+
 public class PlayerCarController : BaseCarController
 {
-    public CarInputActions Controls { get; protected set; }
-    protected RacerScript racerScript;
-    protected LogitechMovement LGM;
+    internal CarInputActions Controls;
+    RacerScript racerScript;
+    LogitechMovement LGM;
+
+
     private PlayerInput PlayerInput;
     private string CurrentControlScheme = "Keyboard";
     [Header("Turbo Type")]
-    public int TurbeChargeAmount { get; protected set; } = 3;
-    protected Coroutine TurbeBoost;
-    public float LastNonWheelInputTime = 0f;
-    public float LastWheelInputTime = 0f;
-    protected override void Awake()
+    internal int turbeChargeAmount = 3;
+    
+
+
+    internal Coroutine TurbeBoost;
+    internal float LastNonWheelInputTime = 0f;
+    internal float LastWheelInputTime = 0f;
+
+
+    
+
+    new void  Awake()
     {
         Controls = new CarInputActions();
         Controls.Enable();
@@ -31,7 +43,6 @@ public class PlayerCarController : BaseCarController
 
         BaseMaxAccerelation = MaxAcceleration;
         SmoothedMaxAcceleration = BaseMaxAccerelation;
-        BaseTargetTorque = TargetTorque;
 
         if (LGM == null)
         {
@@ -52,45 +63,6 @@ public class PlayerCarController : BaseCarController
         base.Start();
     }
 
-    override protected void FixedUpdate()
-    {
-        float speed = CarRb.linearVelocity.magnitude;
-        UpdateDriftSpeed();
-        Move();
-        Steer();
-        Decelerate();
-        Applyturnsensitivity(speed);
-        HandleTurbo();
-
-        WheelEffects(IsDrifting);
-        base.FixedUpdate();
-    }
-
-    protected void Update()
-    {
-        GetInputs();
-        Animatewheels();
-        // detect connection state changes and print once when it changes
-        bool currentlyConnected = (LGM != null) && LGM.logitechInitialized && LogitechGSDK.LogiIsConnected(0);
-        if (LGM != null && currentlyConnected != LGM.lastLogiConnected)
-        {
-            LGM.lastLogiConnected = currentlyConnected;
-            Debug.Log($"[CarController] Logitech connection status: {(currentlyConnected ? "Connected" : "Disconnected")}");
-        }
-
-        if (LGM != null && LGM.useLogitechWheel && LGM.logitechInitialized && LogitechGSDK.LogiIsConnected(0))
-        {
-            LogitechGSDK.LogiUpdate();
-            LGM.GetLogitechInputs();
-            LGM.ApplyForceFeedback(); 
-        }
-    }
-
-    override protected void ApplySpeedLimit()
-    {
-        TargetMaxSpeed = Mathf.Clamp(TargetMaxSpeed, 0, BaseMaxSpeed);
-        if (CarRb.linearVelocity.magnitude * 3.6f > Maxspeed) CarRb.linearVelocity = Maxspeed / 3.6f * CarRb.linearVelocity.normalized;
-    }
 
     private void OnControlsChanged(PlayerInput input)
     {
@@ -157,6 +129,12 @@ public class PlayerCarController : BaseCarController
 
         Controls.CarControls.Drift.performed   += OnDriftPerformed;
         Controls.CarControls.Drift.canceled    += OnDriftCanceled;
+
+        Controls.CarControls.MoveForward.performed += OnBrakePerformed;
+        // Controls.CarControls.MoveForward.canceled  += OnBrakeCanceled;
+
+         
+        
     }
 
     private void OnDisable()
@@ -172,6 +150,8 @@ public class PlayerCarController : BaseCarController
         Controls.CarControls.Move.canceled  -= OnMoveCanceled;
         Controls.CarControls.Drift.performed -= OnDriftPerformed;
         Controls.CarControls.Drift.canceled  -= OnDriftCanceled;
+        Controls.CarControls.MoveForward.performed -= OnBrakePerformed;
+        // Controls.CarControls.MoveForward.canceled  -= OnBrakeCanceled;
         if (LGM != null)
             LGM.StopAllForceFeedback();
     }
@@ -185,6 +165,41 @@ public class PlayerCarController : BaseCarController
             LGM.StopAllForceFeedback();
     }
 
+    //move the movement into the update 
+    void Update()
+    {
+        GetInputs();
+        Animatewheels();
+        // detect connection state changes and print once when it changes
+        bool currentlyConnected = (LGM != null) && LGM.logitechInitialized && LogitechGSDK.LogiIsConnected(0);
+        if (LGM != null && currentlyConnected != LGM.lastLogiConnected)
+        {
+            LGM.lastLogiConnected = currentlyConnected;
+            Debug.Log($"[CarController] Logitech connection status: {(currentlyConnected ? "Connected" : "Disconnected")}");
+        }
+
+        if (LGM != null && LGM.useLogitechWheel && LGM.logitechInitialized && LogitechGSDK.LogiIsConnected(0))
+        {
+            LogitechGSDK.LogiUpdate();
+            LGM.GetLogitechInputs();
+            LGM.ApplyForceFeedback(); 
+        }
+    }
+
+
+    new void FixedUpdate()
+    {
+        float speed = CarRb.linearVelocity.magnitude;
+        UpdateDriftSpeed();
+        ApplySpeedLimit();
+        Move();
+        Steer();
+        Decelerate();
+        Applyturnsensitivity(speed);
+        //OnGrass();
+        HandleTurbo();
+        WheelEffects(IsDrifting);
+    }
 
 
     void UpdateDriftSpeed()
@@ -192,9 +207,9 @@ public class PlayerCarController : BaseCarController
         if (!IsDrifting) return;
 
         if (IsTurboActive)
-            TargetMaxSpeed = Mathf.Lerp(TargetMaxSpeed, BaseSpeed + Turbesped, Time.deltaTime * 0.5f);
+            Maxspeed = Mathf.Lerp(Maxspeed, BaseSpeed + Turbesped, Time.deltaTime * 0.5f);
         else
-            TargetMaxSpeed = Mathf.Lerp(TargetMaxSpeed, DriftMaxSpeed, Time.deltaTime * 0.1f);
+            Maxspeed = Mathf.Lerp(Maxspeed, DriftMaxSpeed, Time.deltaTime * 0.1f);
 
         
         if (Mathf.Abs(SteerInput) > 0.1f)
@@ -212,15 +227,6 @@ public class PlayerCarController : BaseCarController
         // read non-wheel input (keyboard / gamepad) and mark last-non-wheel time when active
         SteerInput = Controls.CarControls.Move.ReadValue<Vector2>().x;
         float nonWheelMove = Mathf.Abs(SteerInput) + Mathf.Abs(Controls.CarControls.MoveForward.ReadValue<float>()) + Mathf.Abs(Controls.CarControls.MoveBackward.ReadValue<float>());
-        if (nonWheelMove > 0.001f || Controls.CarControls.Drift.IsPressed() || Controls.CarControls.Brake.IsPressed())
-        {
-            if (LGM != null)
-            {
-                LGM.useLogitechWheel = false;
-                LGM.allowAutoEnable = true;
-                LGM.StopAllForceFeedback();
-            }
-        }
         
         if (Controls.CarControls.MoveForward.IsPressed())
             MoveInput = Controls.CarControls.MoveForward.ReadValue<float>();
@@ -252,7 +258,7 @@ public class PlayerCarController : BaseCarController
 
     void Move()
     {
-        UpdateTargetTorque();
+        CarMovement();
         AdjustSuspension();
         foreach (var wheel in Wheels)
         {
@@ -261,7 +267,11 @@ public class PlayerCarController : BaseCarController
         }
     }
 
-    private void UpdateTargetTorque()
+    /// <summary>
+    /// moves the car using CarRb.linearvelocity and forcemode.accerelation
+    /// </summary>
+    private void CarMovement()
+    {
     {
         float inputValue = Mathf.Abs(MoveInput);
         if (CurrentControlScheme == "Gamepad")
@@ -270,9 +280,16 @@ public class PlayerCarController : BaseCarController
             inputValue = Mathf.Max(inputValue, Mathf.Abs(moveVector.y));
         }
 
+        float power = CurrentControlScheme == "Gamepad" ? 0.9f : 1.0f;
+
+        float throttle = Mathf.Pow(inputValue, power);
+        
+        // Reduce power during drift but don'turbe eliminate it
+
+
         float steerFactor = Mathf.Clamp01(Mathf.Abs(SteerInput));
         float driftPowerMultiplier = IsDrifting ? Mathf.Lerp(0.65f, 0.85f, steerFactor) : 1.0f;
-        float targetMaxAcc = BaseMaxAccerelation * driftPowerMultiplier;
+        float targetMaxAcc = BaseMaxAccerelation * Mathf.Lerp(0.4f, 1f, throttle) * driftPowerMultiplier;
 
         SmoothedMaxAcceleration = Mathf.MoveTowards(
             SmoothedMaxAcceleration,
@@ -293,8 +310,10 @@ public class PlayerCarController : BaseCarController
 
         if (!IsDrifting)
         {
-            TargetMaxSpeed = Mathf.Lerp(TargetMaxSpeed, IsTurboActive ? BaseSpeed + Turbesped : BaseSpeed, Time.deltaTime);
+            float targetMaxSpeed = IsTurboActive ? BaseSpeed + Turbesped : BaseSpeed;
+            Maxspeed = Mathf.Lerp(Maxspeed, targetMaxSpeed, Time.deltaTime);
         }
+    }
     }
 
 
@@ -312,11 +331,14 @@ public class PlayerCarController : BaseCarController
         return 0.0f;
     }
 
+
+    //this entire thing will be reworked into a completely different drift
     //i hate this so much, its always somewhat broken but for now....... its not broken.
     void OnDriftPerformed(InputAction.CallbackContext ctx)
     {
         if (IsDrifting || !CanDrift || racerScript.raceFinished) return;
 
+        Activedrift++;
         IsDrifting = true;
 
         MaxAcceleration = BaseMaxAccerelation * 0.95f;
@@ -338,19 +360,73 @@ public class PlayerCarController : BaseCarController
         WheelEffects(true);
     }
 
+    protected new void AdjustWheelsForDrift()
+    {
+        foreach (var wheel in Wheels)
+        {
+            JointSpring suspensionSpring = wheel.WheelCollider.suspensionSpring;
+            suspensionSpring.spring = 500.0f;
+            suspensionSpring.damper = 2500.0f;
+            wheel.WheelCollider.suspensionSpring = suspensionSpring;
+
+            WheelFrictionCurve forwardFriction = wheel.WheelCollider.forwardFriction;
+            forwardFriction.extremumSlip = 0.45f;
+            forwardFriction.asymptoteSlip = 0.6f;
+            forwardFriction.extremumValue = 1;
+            forwardFriction.asymptoteValue = 1;
+            forwardFriction.stiffness = 5.5f;
+            wheel.WheelCollider.forwardFriction = forwardFriction;
+
+            if (wheel.Axel == Axel.Front)
+            {
+                WheelFrictionCurve sidewaysFriction = wheel.WheelCollider.sidewaysFriction;
+                sidewaysFriction.stiffness = 2f;
+                wheel.WheelCollider.sidewaysFriction = sidewaysFriction;
+            }
+        }        
+    }
+
+
+    protected new void AdjustSuspension()
+    {
+        foreach (var wheel in Wheels)
+        {
+            JointSpring suspensionSpring = wheel.WheelCollider.suspensionSpring;
+            suspensionSpring.spring = 8000.0f;
+            suspensionSpring.damper = 5000.0f;
+            wheel.WheelCollider.suspensionSpring = suspensionSpring;
+        }
+    }
+
+    protected  void AdjustForwardFrictrion()
+    {
+        foreach (var wheel in Wheels)
+        {
+            WheelFrictionCurve forwardFriction = wheel.WheelCollider.forwardFriction;
+            forwardFriction.extremumSlip = 0.8f;
+            forwardFriction.extremumValue = 1;
+            forwardFriction.asymptoteSlip = 1.0f;
+            forwardFriction.asymptoteValue = 1;
+            forwardFriction.stiffness = 7f;
+            wheel.WheelCollider.forwardFriction = forwardFriction;
+        }
+    }
+
     void OnDriftCanceled(InputAction.CallbackContext ctx)
     {
         StopDrifting();
         OnDriftEndBoostTheCar();
         MaxAcceleration = BaseMaxAccerelation;
-        TargetTorque = BaseTargetTorque;
         WheelEffects(false);
     }
 
-    public void StopDrifting()
+
+
+    internal void StopDrifting()
     {
         if (IsDrifting)
         {
+            Activedrift = 0;
             IsDrifting = false;
             MaxAcceleration = BaseMaxAccerelation;
         }
@@ -369,8 +445,9 @@ public class PlayerCarController : BaseCarController
         }
     }
 
+    //this entire patch thats inside these comments will be reworked
 
-
+    
     public void OnDriftEndBoostTheCar()
     {
         float driftmultiplier = ScoreManager.instance.CurrentDriftMultiplier;
@@ -386,8 +463,8 @@ public class PlayerCarController : BaseCarController
 
         TurbeBoost = StartCoroutine(BoostCoroutine(TurbeStrength, Duration));
     }
-
-    protected IEnumerator BoostCoroutine(float turboStrength, float durationOverride = -1f)
+    //refactor this aswell bcs its shit right now
+    internal IEnumerator BoostCoroutine(float turboStrength, float durationOverride = -1f)
     {
 
         float GetCurrentBaseSpeed() => IsDrifting
@@ -412,11 +489,21 @@ public class PlayerCarController : BaseCarController
             float expo = 1f - Mathf.Exp(-12f * timer / duration);
             CarRb.AddForce(transform.forward * turboStrength * 2.5f * expo * Time.deltaTime, ForceMode.VelocityChange);
 
-            TargetMaxSpeed = Mathf.Lerp(TargetMaxSpeed, Mathf.Lerp(boostedMax, GetCurrentBaseSpeed(), smooth), Time.deltaTime * 2f);
+            Maxspeed = Mathf.Lerp(Maxspeed, Mathf.Lerp(boostedMax, GetCurrentBaseSpeed(), smooth), Time.deltaTime * 2f);
 
             yield return null;
         }
-        TargetMaxSpeed = GetCurrentBaseSpeed();
+        Maxspeed = GetCurrentBaseSpeed();
         TurbeBoost = null;
     }
+
+    void OnBrakePerformed(InputAction.CallbackContext ctx)
+    {
+        print("This brake was promised to me 3000 years ago and I will not let it be taken away");
+    }
+
+    // void OnBrakeCanceled(InputAction.CallbackContext ctx)
+    // {
+    //     print("This brake was promised to me 3000 years ago and I will not let it be taken away");
+    // }
 }

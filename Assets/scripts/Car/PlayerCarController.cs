@@ -29,7 +29,7 @@ public class PlayerCarController : BaseCarController
     override protected void Start()
     {
 
-        BaseMaxAccerelation = MaxAcceleration;
+        BaseMaxAccerelation = Acceleration;
         SmoothedMaxAcceleration = BaseMaxAccerelation;
         BaseTargetTorque = TargetTorque;
 
@@ -86,11 +86,11 @@ public class PlayerCarController : BaseCarController
         }
     }
 
-    override protected void ApplySpeedLimit()
-    {
-        TargetMaxSpeed = Mathf.Clamp(TargetMaxSpeed, 0, BaseMaxSpeed);
-        if (CarRb.linearVelocity.magnitude * 3.6f > Maxspeed) CarRb.linearVelocity = Maxspeed / 3.6f * CarRb.linearVelocity.normalized;
-    }
+    // override protected void ApplySpeedLimit()
+    // {
+    //     MaxSpeed = Mathf.Clamp(MaxSpeed, 0, BaseMaxSpeed);
+    //     if (CarRb.linearVelocity.magnitude * 3.6f > Maxspeed) CarRb.linearVelocity = Maxspeed / 3.6f * CarRb.linearVelocity.normalized;
+    // }
 
     private void OnControlsChanged(PlayerInput input)
     {
@@ -192,9 +192,9 @@ public class PlayerCarController : BaseCarController
         if (!IsDrifting) return;
 
         if (IsTurboActive)
-            TargetMaxSpeed = Mathf.Lerp(TargetMaxSpeed, BaseSpeed + Turbesped, Time.deltaTime * 0.5f);
+            MaxSpeed = Mathf.Lerp(MaxSpeed, BaseSpeed + Turbesped, Time.deltaTime * 0.5f);
         else
-            TargetMaxSpeed = Mathf.Lerp(TargetMaxSpeed, DriftMaxSpeed, Time.deltaTime * 0.1f);
+            MaxSpeed = Mathf.Lerp(MaxSpeed, DriftMaxSpeed, Time.deltaTime * 0.1f);
 
         
         if (Mathf.Abs(SteerInput) > 0.1f)
@@ -238,7 +238,7 @@ public class PlayerCarController : BaseCarController
         TurnSensitivity = Mathf.Lerp(
             TurnSensitivityAtLowSpeed,
             TurnSensitivityAtHighSpeed,
-            Mathf.Clamp01(speed / Maxspeed));
+            Mathf.Clamp01(speed / MaxSpeed));
     }
 
     protected void HandleTurbo()
@@ -256,7 +256,7 @@ public class PlayerCarController : BaseCarController
         AdjustSuspension();
         foreach (var wheel in Wheels)
         {
-            if (Controls.CarControls.Brake.IsPressed()) wheel.Brakes(BrakeAcceleration);
+            if (Controls.CarControls.Brake.IsPressed()) wheel.Brake(BrakeAcceleration);
             else wheel.MotorTorque(TargetTorque);
         }
     }
@@ -293,7 +293,7 @@ public class PlayerCarController : BaseCarController
 
         if (!IsDrifting)
         {
-            TargetMaxSpeed = Mathf.Lerp(TargetMaxSpeed, IsTurboActive ? BaseSpeed + Turbesped : BaseSpeed, Time.deltaTime);
+            MaxSpeed = Mathf.Lerp(MaxSpeed, IsTurboActive ? BaseSpeed + Turbesped : BaseSpeed, Time.deltaTime);
         }
     }
 
@@ -319,7 +319,7 @@ public class PlayerCarController : BaseCarController
 
         IsDrifting = true;
 
-        MaxAcceleration = BaseMaxAccerelation * 0.95f;
+        Acceleration = BaseMaxAccerelation * 0.95f;
 
         foreach (var wheel in Wheels)
         {
@@ -342,7 +342,7 @@ public class PlayerCarController : BaseCarController
     {
         StopDrifting();
         OnDriftEndBoostTheCar();
-        MaxAcceleration = BaseMaxAccerelation;
+        Acceleration = BaseMaxAccerelation;
         TargetTorque = BaseTargetTorque;
         WheelEffects(false);
     }
@@ -352,7 +352,7 @@ public class PlayerCarController : BaseCarController
         if (IsDrifting)
         {
             IsDrifting = false;
-            MaxAcceleration = BaseMaxAccerelation;
+            Acceleration = BaseMaxAccerelation;
         }
         float DeltaTime = Time.deltaTime * 2.5f;
 
@@ -412,11 +412,11 @@ public class PlayerCarController : BaseCarController
             float expo = 1f - Mathf.Exp(-12f * timer / duration);
             CarRb.AddForce(transform.forward * turboStrength * 2.5f * expo * Time.deltaTime, ForceMode.VelocityChange);
 
-            TargetMaxSpeed = Mathf.Lerp(TargetMaxSpeed, Mathf.Lerp(boostedMax, GetCurrentBaseSpeed(), smooth), Time.deltaTime * 2f);
+            MaxSpeed = Mathf.Lerp(MaxSpeed, Mathf.Lerp(boostedMax, GetCurrentBaseSpeed(), smooth), Time.deltaTime * 2f);
 
             yield return null;
         }
-        TargetMaxSpeed = GetCurrentBaseSpeed();
+        MaxSpeed = GetCurrentBaseSpeed();
         TurbeBoost = null;
     }
 }

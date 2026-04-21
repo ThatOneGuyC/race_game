@@ -47,8 +47,8 @@ public class AiCarController : BaseCarController
         )
     {
         this.aiCarManager = aiCarManager;
-        Maxspeed = difficultyStats.maxSpeed;
-        MaxAcceleration = difficultyStats.maxAcceleration;
+        MaxSpeed = difficultyStats.maxSpeed;
+        Acceleration = difficultyStats.maxAcceleration;
         this.startIndex = startIndex;
         this.isReversed = isReversed;
         return this;
@@ -84,7 +84,7 @@ public class AiCarController : BaseCarController
         {
             int newIndex = currentWaypointIndex + waypointSign;
             currentWaypointIndex = (Math.Sign(newIndex) >= 0 ? newIndex : waypointSize - 1) % waypointSize;
-            TargetMaxSpeed = Mathf.Clamp(Mathf.Sqrt(Maxspeed * aiCarManager.PointRadi[currentWaypointIndex]) * 1.3f, Maxspeed * minSlowdown, Maxspeed) / 3.6f;
+            MaxSpeed = Mathf.Clamp(Mathf.Sqrt(MaxSpeed * aiCarManager.PointRadi[currentWaypointIndex]) * 1.3f, MaxSpeed * minSlowdown, MaxSpeed) / 3.6f;
             targetPoint = aiCarManager.Waypoints[currentWaypointIndex].position;
         }
 
@@ -112,7 +112,7 @@ public class AiCarController : BaseCarController
     private void ApplyDriveInputs()
     {
         moveInput = 1.0f;
-        targetTorque = moveInput * MaxAcceleration;
+        targetTorque = moveInput * Acceleration;
 
         foreach (Wheel wheel in Wheels)
         {

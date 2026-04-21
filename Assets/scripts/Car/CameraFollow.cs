@@ -32,7 +32,7 @@ public class CameraFollow : MonoBehaviour
     {
         HandleMovement();
         HandleRotation();
-        Cam.fieldOfView = Mathf.Lerp(Cam.fieldOfView, Mathf.Lerp(normalFOV, ZoomFOV, Mathf.Clamp01(carController.CarRb.linearVelocity.magnitude * 3.6f / carController.Maxspeed)), Time.deltaTime * moveSmoothness);
+        Cam.fieldOfView = Mathf.Lerp(Cam.fieldOfView, Mathf.Lerp(normalFOV, ZoomFOV, Mathf.Clamp01(carController.CarRb.linearVelocity.magnitude * 3.6f / carController.MaxSpeed)), Time.deltaTime * moveSmoothness);
     }
 
     void HandleMovement()

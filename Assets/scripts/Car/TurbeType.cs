@@ -10,7 +10,7 @@ public static class Turbe
         {
             car.CarRb.AddForce(Vector3.ProjectOnPlane(car.transform.forward, Vector3.up).normalized * car.Turbepush, ForceMode.Acceleration);
             car.TargetTorque = car.BaseTargetTorque * 1.5f;
-            car.TargetTorque = Mathf.Min(car.TargetTorque, car.MaxAcceleration);
+            car.TargetTorque = Mathf.Min(car.TargetTorque, car.Acceleration);
         }
     }
 }

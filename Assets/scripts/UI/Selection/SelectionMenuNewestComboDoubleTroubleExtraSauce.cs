@@ -151,8 +151,6 @@ public class SelectionMenuNewestComboDoubleTroubleExtraSauce : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    //uus scene: lobby > map > car > options > gaming multiplayeris
-
     //tätä käytetää vain alussa
     public void SelectGamemode(int mode)
     {
@@ -207,17 +205,15 @@ public class SelectionMenuNewestComboDoubleTroubleExtraSauce : MonoBehaviour
             turbeAmountText.text = $"Turbo amount: {activeCarStats.turbeAmount}";
 
             //DO YOU SUCK?
-            //TODO: early return?
-            if (unlockedSkins.Contains(activeCarStats.carName))
-            {
-                lockedPopup.color = new(1f, 1f, 1f, 0f);
-                canSelectCar = true;
-            }
-            else
+            if (!unlockedSkins.Contains(activeCarStats.carName))
             {
                 lockedPopup.color = new(1f, 1f, 1f, 1f);
                 canSelectCar = false;
+                return;
             }
+
+            lockedPopup.color = new(1f, 1f, 1f, 0f);
+            canSelectCar = true;
         }
     }
     
@@ -229,10 +225,7 @@ public class SelectionMenuNewestComboDoubleTroubleExtraSauce : MonoBehaviour
         availableCars[index].SetActive(false);
         index = (index + 1) % availableCars.Count;
         availableCars[index].SetActive(true);
-        if (index >= 0 && index < availableCars.Count)
-        {
-            UpdateCarStats(); 
-        }
+        if (index >= 0 && index < availableCars.Count) UpdateCarStats(); 
 
         PlayerPrefs.SetString("SelectedCar", availableCars[index].name);
         PlayerPrefs.Save();
@@ -246,10 +239,7 @@ public class SelectionMenuNewestComboDoubleTroubleExtraSauce : MonoBehaviour
         availableCars[index].SetActive(false);
         index = (index - 1 + availableCars.Count) % availableCars.Count;
         availableCars[index].SetActive(true);
-        if (index >= 0 && index < availableCars.Count)
-        {
-            UpdateCarStats(); 
-        }
+        if (index >= 0 && index < availableCars.Count) UpdateCarStats(); 
 
         PlayerPrefs.SetString("SelectedCar", availableCars[index].name);
         PlayerPrefs.Save();
@@ -283,16 +273,8 @@ public class SelectionMenuNewestComboDoubleTroubleExtraSauce : MonoBehaviour
         else if (selectedSelectionMenu == "B_carSelection")
         {
             carStatsContainer.SetActive(true);
-            if (index >= 0 && index < availableCars.Count)
-            {
-                availableCars[index].SetActive(true);
-            }
-            else
-            {
-                Debug.LogError("Car index out of range: " + index);
-                index = 0;
-                availableCars[index].SetActive(true);
-            }
+            if (index >= 0 && index < availableCars.Count) availableCars[index].SetActive(true);
+            else throw new IndexOutOfRangeException($"index of {index} not found within range");
 
             UpdateCarStats();
         }

@@ -45,7 +45,7 @@ public class AiCarManager : MonoBehaviour
     void Start()
     {
         spawnedAiCarCount = (byte)PlayerPrefs.GetInt("AIAmount");
-        if (spawnedAiCarCount <= 0)
+        if (spawnedAiCarCount <= 0 || PlayerPrefs.GetInt("SpawnAI") == 0)
         {
             Destroy(this);
             return;

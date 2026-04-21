@@ -16,9 +16,9 @@ public class OptionCategories : MonoBehaviour
     void Awake()
     {
         //TODO: joku parempi tapa tälle sillä tää on täynnä conditioneita ja paskaa
-        //HUOM. tiedän että tälle vois tehä .Substring ^1 mutta se ei kirjaimellisesti toimi
-        CategoryContents = GetComponentsInChildren<Transform>().Where(i => char.IsDigit(i.name[i.name.Length - 1])).OrderBy(a => a.name).Reverse().ToList();
-        CategoryButtonList = GetComponentsInChildren<Button>().OrderBy(a => a.name).Reverse().ToList();
+        CategoryContents = GetComponentsInChildren<Transform>().OrderBy(a => a.name[^1]).Where(i => char.IsDigit(i.name[^1])).ToList();
+        CategoryButtonList = GetComponentsInChildren<Button>().OrderBy(a => a.name[^1]).ToList();
+        foreach (var a in CategoryContents) if (a != currentCategory) a.gameObject.SetActive(false);
         Controls = new CarInputActions();
     }
     void OnEnable()
@@ -33,7 +33,7 @@ public class OptionCategories : MonoBehaviour
         Controls.CarControls.carskinright.performed -= ctx => ChangeCategoryManual(true);
         Controls.CarControls.carskinleft.performed -= ctx => ChangeCategoryManual(false);
     }
-    //TODO: ok vittu tää pitää korjata nyt
+    //TODO: nvm sitä ei tarvi korjaa mut tästä voi silti tehä paremman
     private void ChangeCategoryManual(bool change)
     {
         if (index > CategoryButtonList.Count - 1 || index < 0) return;

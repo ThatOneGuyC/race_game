@@ -43,10 +43,6 @@ public class OptionScript : MonoBehaviour
 
         List<AudioSlider> audioSliders = GetComponentsInChildren<AudioSlider>().ToList();
         foreach (var i in audioSliders) { i.volumeSlider.onValueChanged.AddListener((value) => { main.SetFloat(i.volumeSlider.name, Mathf.Log10(i.volumeSlider.value) * 20); }); }
-        if (audioSliders.Count == 0 || transform.Find("Container/Audio_2") == null) return;
-
-        GameObject audioCategory = transform.Find("Container/Audio_2").gameObject;
-        if (audioCategory != null) audioCategory.SetActive(false);
     }
 
     private void InitSpecificOptionValue(Toggle toggle)

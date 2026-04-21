@@ -18,7 +18,6 @@ public class PlayerCarController : BaseCarController
     private PlayerInput PlayerInput;
     private string CurrentControlScheme = "Keyboard";
     [Header("Turbo Type")]
-    [SerializeField] private TurbeType selectedTurboType = TurbeType.TURBO;
     internal int turbeChargeAmount = 3;
     
 
@@ -30,7 +29,7 @@ public class PlayerCarController : BaseCarController
 
     
 
-    void Awake()
+    new void  Awake()
     {
         Controls = new CarInputActions();
         Controls.Enable();
@@ -42,8 +41,8 @@ public class PlayerCarController : BaseCarController
     override protected void Start()
     {
 
-        PerusMaxAccerelation = MaxAcceleration;
-        SmoothedMaxAcceleration = PerusMaxAccerelation;
+        BaseMaxAccerelation = MaxAcceleration;
+        SmoothedMaxAcceleration = BaseMaxAccerelation;
 
         if (LGM == null)
         {
@@ -130,6 +129,12 @@ public class PlayerCarController : BaseCarController
 
         Controls.CarControls.Drift.performed   += OnDriftPerformed;
         Controls.CarControls.Drift.canceled    += OnDriftCanceled;
+
+        Controls.CarControls.MoveForward.performed += OnBrakePerformed;
+        // Controls.CarControls.MoveForward.canceled  += OnBrakeCanceled;
+
+         
+        
     }
 
     private void OnDisable()
@@ -145,6 +150,8 @@ public class PlayerCarController : BaseCarController
         Controls.CarControls.Move.canceled  -= OnMoveCanceled;
         Controls.CarControls.Drift.performed -= OnDriftPerformed;
         Controls.CarControls.Drift.canceled  -= OnDriftCanceled;
+        Controls.CarControls.MoveForward.performed -= OnBrakePerformed;
+        // Controls.CarControls.MoveForward.canceled  -= OnBrakeCanceled;
         if (LGM != null)
             LGM.StopAllForceFeedback();
     }
@@ -180,12 +187,11 @@ public class PlayerCarController : BaseCarController
     }
 
 
-    void FixedUpdate()
+    new void FixedUpdate()
     {
         float speed = CarRb.linearVelocity.magnitude;
-        isOnGrassCachedValid = false;
         UpdateDriftSpeed();
-        ApplySpeedLimit(Maxspeed / 3.6f);
+        ApplySpeedLimit();
         Move();
         Steer();
         Decelerate();
@@ -244,7 +250,7 @@ public class PlayerCarController : BaseCarController
     protected void HandleTurbo()
     {
         if (!CanUseTurbo) return;
-        Turbe.Apply(this, selectedTurboType);
+        Turbe.TURBO(this);
         TurbeMeter();
     }
 
@@ -253,12 +259,11 @@ public class PlayerCarController : BaseCarController
     void Move()
     {
         CarMovement();
-        AdjustSpeedForGrass();
         AdjustSuspension();
         foreach (var wheel in Wheels)
         {
-            if (Controls.CarControls.Brake.IsPressed()) Brakes(wheel);
-            else MotorTorgue(wheel);
+            if (Controls.CarControls.Brake.IsPressed()) wheel.Brakes(BrakeAcceleration);
+            else wheel.MotorTorque(TargetTorque);
         }
     }
 
@@ -284,7 +289,7 @@ public class PlayerCarController : BaseCarController
 
         float steerFactor = Mathf.Clamp01(Mathf.Abs(SteerInput));
         float driftPowerMultiplier = IsDrifting ? Mathf.Lerp(0.65f, 0.85f, steerFactor) : 1.0f;
-        float targetMaxAcc = PerusMaxAccerelation * Mathf.Lerp(0.4f, 1f, throttle) * driftPowerMultiplier;
+        float targetMaxAcc = BaseMaxAccerelation * Mathf.Lerp(0.4f, 1f, throttle) * driftPowerMultiplier;
 
         SmoothedMaxAcceleration = Mathf.MoveTowards(
             SmoothedMaxAcceleration,
@@ -336,7 +341,7 @@ public class PlayerCarController : BaseCarController
         Activedrift++;
         IsDrifting = true;
 
-        MaxAcceleration = PerusMaxAccerelation * 0.95f;
+        MaxAcceleration = BaseMaxAccerelation * 0.95f;
 
         foreach (var wheel in Wheels)
         {
@@ -393,7 +398,7 @@ public class PlayerCarController : BaseCarController
         }
     }
 
-    protected new void AdjustForwardFrictrion()
+    protected  void AdjustForwardFrictrion()
     {
         foreach (var wheel in Wheels)
         {
@@ -411,19 +416,11 @@ public class PlayerCarController : BaseCarController
     {
         StopDrifting();
         OnDriftEndBoostTheCar();
-        MaxAcceleration = PerusMaxAccerelation;
+        MaxAcceleration = BaseMaxAccerelation;
         WheelEffects(false);
     }
 
-    override protected bool IsOnGrass()
-    {
-        if (Wheels.Any(wheel => IsWheelGrounded(wheel) && IsWheelOnGrass(wheel)))
-        {
-            if (GrassRespawnActive) racerScript.RespawnAtLastCheckpoint();
-            return true;
-        }
-        return false;
-    }
+
 
     internal void StopDrifting()
     {
@@ -431,7 +428,7 @@ public class PlayerCarController : BaseCarController
         {
             Activedrift = 0;
             IsDrifting = false;
-            MaxAcceleration = PerusMaxAccerelation;
+            MaxAcceleration = BaseMaxAccerelation;
         }
         float DeltaTime = Time.deltaTime * 2.5f;
 
@@ -499,4 +496,14 @@ public class PlayerCarController : BaseCarController
         Maxspeed = GetCurrentBaseSpeed();
         TurbeBoost = null;
     }
+
+    void OnBrakePerformed(InputAction.CallbackContext ctx)
+    {
+        print("This brake was promised to me 3000 years ago and I will not let it be taken away");
+    }
+
+    // void OnBrakeCanceled(InputAction.CallbackContext ctx)
+    // {
+    //     print("This brake was promised to me 3000 years ago and I will not let it be taken away");
+    // }
 }

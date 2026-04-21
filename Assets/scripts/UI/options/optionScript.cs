@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Audio;
 using TMPro;
+using Autodesk.Fbx;
 
 public class OptionScript : MonoBehaviour
 {
@@ -17,7 +18,7 @@ public class OptionScript : MonoBehaviour
 
     void Awake()
     {
-        OptionsList = GetComponentsInChildren<OptionComponent>().ToList();
+        OptionsList = GetComponentsInChildren<OptionComponent>(true).ToList();
         if (OptionsList.Count != 0) InitializeOptions();
     }
 
@@ -41,7 +42,7 @@ public class OptionScript : MonoBehaviour
         //MISTER BARBER DID I NOT TELL YOU TO REMOVE EVERYTHING???
         foreach (var i in AllMixerGroups) main.SetFloat($"{i}_value", Mathf.Log10(PlayerPrefs.GetFloat($"{i}_value_value")) * 20);
 
-        List<AudioSlider> audioSliders = GetComponentsInChildren<AudioSlider>().ToList();
+        List<AudioSlider> audioSliders = GetComponentsInChildren<AudioSlider>(true).ToList();
         foreach (var i in audioSliders) { i.volumeSlider.onValueChanged.AddListener((value) => { main.SetFloat(i.volumeSlider.name, Mathf.Log10(i.volumeSlider.value) * 20); }); }
     }
 

@@ -1,6 +1,9 @@
+using System;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using UnityEngine.XR;
 
 public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
 {
@@ -11,11 +14,12 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
     PlayerInput PlayerInput;
 
 
-    void Awake()
+    new void Awake()
     {
         Controls = new CarInputActions();
         Controls.Enable();
         CarRb = GetComponent<Rigidbody>();
+        TurbeBar = GameManager.instance.CarUI.transform.Find("TurbeDisplay").GetComponentInChildren<Image>();
         AutoAssignWheelsAndMaterials();
         
     }
@@ -48,6 +52,8 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
 
         // Controls.CarControls.Drift.performed   += OnDriftPerformed;
         // Controls.CarControls.Drift.canceled    += OnDriftCanceled;
+        Controls.CarControls.Brake.performed += OnBrakePerformed;
+        Controls.CarControls.Brake.canceled  += OnBrakeCanceled;
     }
 
     private void OnDisable()
@@ -63,6 +69,8 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
         Controls.CarControls.Move.canceled  -= OnMoveCanceled;
         // Controls.CarControls.Drift.performed -= OnDriftPerformed;
         // Controls.CarControls.Drift.canceled  -= OnDriftCanceled;
+        Controls.CarControls.Brake.performed -= OnBrakePerformed;
+        Controls.CarControls.Brake.canceled -= OnBrakeCanceled;
         if (LGM != null)
             LGM.StopAllForceFeedback();
     }
@@ -104,28 +112,27 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
         GetInputs();
 
         Steer();
-        Move();
-        ApplySpeedLimit(Maxspeed / 3.6f);
+        CarMovement();
+        ApplySpeedLimit();
         Decelerate();
-
     }
+
+    
     
     //physics related will go here
-    protected void FixedUpdate()
+    protected new void FixedUpdate()
     {
-
-        Applyturnsensitivity(GetSpeed());
+        Applyturnsensitivity(CarRb.linearVelocity.magnitude);
+        // HandleTurbo();
     }
 
-    private void Move()
-    {
-        CarMovement();
-        foreach (var wheel in Wheels)
-        {
-            if (Controls.CarControls.Brake.IsPressed()) Brakes(wheel);
-            else MotorTorgue(wheel);
-        }  
-    }
+    //que
+    // protected void HandleTurbo()
+    // {
+    //     if (!CanUseTurbo) return;
+    //     Turbe.TURBO(this);
+    //     TurbeMeter();
+    // }
 
     void GetInputs()
     {
@@ -140,8 +147,8 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
     {
         float forwardValue = Mathf.Abs(MoveInput);
        
-        float targetSpeedMs = Maxspeed  * forwardValue;
-        Vector3 flatForwardVelocity = transform.forward * targetSpeedMs;
+        float targetSpeed = Mathf.MoveTowards(CarRb.linearVelocity.magnitude, Maxspeed  * forwardValue, 10f * Time.deltaTime);
+        Vector3 flatForwardVelocity = transform.forward * targetSpeed;
         CarRb.linearVelocity = new Vector3(flatForwardVelocity.x, CarRb.linearVelocity.y, flatForwardVelocity.z);
     }
 
@@ -152,5 +159,20 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
             TurnSensitivityAtLowSpeed,
             TurnSensitivityAtHighSpeed,
             Mathf.Clamp01(speed / Maxspeed));
+    }
+
+    void OnBrakePerformed(InputAction.CallbackContext ctx)
+    {
+        foreach (var wheel in Wheels)
+        {
+            wheel.Brakes(BrakeAcceleration);
+        }
+    }
+    void OnBrakeCanceled(InputAction.CallbackContext ctx)
+    {
+        foreach (var wheel in Wheels)
+        {
+            wheel.MotorTorque(TargetTorque);
+        }
     }
 }

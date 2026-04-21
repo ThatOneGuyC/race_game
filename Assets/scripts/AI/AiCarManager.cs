@@ -44,10 +44,17 @@ public class AiCarManager : MonoBehaviour
 
     void Start()
     {
+        spawnedAiCarCount = (byte)PlayerPrefs.GetInt("AIAmount");
+        if (spawnedAiCarCount <= 0)
+        {
+            Destroy(this);
+            return;
+        }
+
         BezierBaker bezierBaker = GetComponent<BezierBaker>();
         Waypoints = bezierBaker.GetCachedPoints();
         PointRadi = bezierBaker.GetPointRadi();
-        spawnedAiCarCount = (byte)PlayerPrefs.GetInt("AIAmount");
+        
         difficulty = (AIDifficulty)PlayerPrefs.GetInt("AILevel");
         bool isReversed = PlayerPrefs.GetInt("Reverse") == 1 || forceReverse;
         int startIndex = bezierBaker.StartIndex;
@@ -59,24 +66,19 @@ public class AiCarManager : MonoBehaviour
         }
 
         // Spawn AI
-        if (spawnedAiCarCount > 0)
+        Transform[] spawnPoints = GetComponentsInChildren<Transform>().Where(t => t != transform).ToArray();
+        for (int i = 0; i < spawnedAiCarCount; i++)
         {
-            // Find Spawn points
-            Transform[] spawnPoints = GetComponentsInChildren<Transform>().Where(t => t != transform).ToArray();
+            // Get a random prefab from the list
+            AiCarController prefab = AiCarPrefabs[UnityEngine.Random.Range(0, AiCarPrefabs.Length)];
             
-            for (int i = 0; i < spawnedAiCarCount; i++)
-            {
-                // Get a random prefab from the list
-                AiCarController prefab = AiCarPrefabs[UnityEngine.Random.Range(0, AiCarPrefabs.Length)];
-                
-                GameObject newAI = Instantiate(prefab.gameObject, spawnPoints[i % spawnPoints.Length].position, Quaternion.Euler(spawnDirection));
+            GameObject newAI = Instantiate(prefab.gameObject, spawnPoints[i % spawnPoints.Length].position, Quaternion.Euler(spawnDirection));
 
-                // Initialize the controller
-                AiCarController controller = newAI.GetComponent<AiCarController>();
-                controller.Initialize(this, difficultyRanges[difficulty], startIndex, isReversed);
-                
-                GameManager.instance.spawnedCars.Add(controller);
-            }
+            // Initialize the controller
+            AiCarController controller = newAI.GetComponent<AiCarController>();
+            controller.Initialize(this, difficultyRanges[difficulty], startIndex, isReversed);
+            
+            GameManager.instance.spawnedCars.Add(controller);
         }
     }
 }

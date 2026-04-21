@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.IO;
+using System.Text;
 
 public class RaceResultCollector : MonoBehaviour
 {
@@ -73,33 +74,21 @@ public class RaceResultCollector : MonoBehaviour
     private string GetMap()
     {
         string tester = SceneManager.GetActiveScene().name;
-        return tester switch
-        {
-            "haukipudas" => "Shoreline Day",
-            "haukipudas_night" => "Shoreline Night",
-            "ai_haukipudas" => "Shoreline Day [AI]",
-            "ai_haukipudas_night" => "Shoreline Night [AI]",
-            "canyon" => "Canyon Day",
-            "canyon_night" => "Canyon Night",
-            "ai_canyon" => "Canyon Day [AI]",
-            "ai_canyon_night" => "Canyon Night [AI]",
-            "tutorial" => "Tutorial",
-            _ => "Unknown"
-        };
+        StringBuilder s = new(tester);
+        s.Replace('_', ' ');
+        if (PlayerPrefs.GetInt("SpawnAI") == 1) s.Append(" [AI]");
+        string trueTester = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(s.ToString());
+        
+        return trueTester;
     }
 
     private string GetCarName()
     {
+        if (GameManager.instance == null || GameManager.instance.CurrentCar == null) return "Unknown";
         string car = GameManager.instance.CurrentCar.name;
-        bool DumbThingToCheckForTutorial = car.Contains("(");
-        int endIndex = DumbThingToCheckForTutorial ? car.IndexOf("(") : car.Length - 1;
-        string result = car.Substring(0, endIndex);
-        if (GameManager.instance != null && GameManager.instance.CurrentCar != null)
-        {
-            return result;
-        }
-        
-        return "Unknown";
+        string result = car.Substring(0, car.IndexOf("("));
+
+        return result;
     }
 
     /// <summary>

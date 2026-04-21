@@ -141,7 +141,7 @@ public class SelectionMenuNewestComboDoubleTroubleExtraSauce : MonoBehaviour
             else detailsPanelText.text = "";
         }
     }
-    public void SaveSettings()
+    private void SaveSettings()
     {
         PlayerPrefs.SetInt(lapCountDropdown.name, lapCountDropdown.value + 1);
         PlayerPrefs.SetInt(AICarsAmountDropdown.name, AICarsAmountDropdown.value + 1);
@@ -320,7 +320,6 @@ public class SelectionMenuNewestComboDoubleTroubleExtraSauce : MonoBehaviour
     private void SetMapToLoad()
     {
         string selectedMap = savedMapBaseName;
-        if (selectedGamemode == Gamemode.AI) selectedMap = $"ai_{savedMapBaseName}";
         if (timeOfDayDropdown.value == 1) selectedMap += $"_night";
         PlayerPrefs.SetString("SelectedMap", selectedMap);
         PlayerPrefs.Save();
@@ -341,6 +340,7 @@ public class SelectionMenuNewestComboDoubleTroubleExtraSauce : MonoBehaviour
         PlayerPrefs.Save();
         SetMapToLoad();
         uiStartRaceSound.Play();
+        SaveSettings();
         StartCoroutine(LoadSelectedMap());
     }
     private IEnumerator LoadSelectedMap()

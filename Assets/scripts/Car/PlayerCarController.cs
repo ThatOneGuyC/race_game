@@ -195,7 +195,7 @@ public class PlayerCarController : BaseCarController
     {
         if (!IsDrifting) return;
 
-        if (IsTurboActive)
+        if (isTurboActive)
             MaxSpeed = Mathf.Lerp(MaxSpeed, BaseSpeed + Turbesped, Time.deltaTime * 0.5f);
         else
             MaxSpeed = Mathf.Lerp(MaxSpeed, DriftMaxSpeed, Time.deltaTime * 0.1f);
@@ -300,7 +300,7 @@ public class PlayerCarController : BaseCarController
 
         if (!IsDrifting)
         {
-            MaxSpeed = Mathf.Lerp(MaxSpeed, IsTurboActive ? BaseSpeed + Turbesped : BaseSpeed, Time.deltaTime);
+            MaxSpeed = Mathf.Lerp(MaxSpeed, isTurboActive ? BaseSpeed + Turbesped : BaseSpeed, Time.deltaTime);
         }
     }
 
@@ -398,8 +398,8 @@ public class PlayerCarController : BaseCarController
     {
 
         float GetCurrentBaseSpeed() => IsDrifting
-            ? (IsTurboActive ? BaseSpeed + Turbesped : DriftMaxSpeed)
-            : (IsTurboActive ? BaseSpeed + Turbesped : BaseSpeed);
+            ? (isTurboActive ? BaseSpeed + Turbesped : DriftMaxSpeed)
+            : (isTurboActive ? BaseSpeed + Turbesped : BaseSpeed);
 
         float originalSpeed = GetCurrentBaseSpeed();
         float boostedMax = Mathf.Max(BaseSpeed + Turbesped, originalSpeed + turboStrength);

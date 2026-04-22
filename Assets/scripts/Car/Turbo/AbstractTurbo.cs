@@ -1,6 +1,9 @@
 using System.Collections;
 using UnityEngine;
 
+// Extend this class to create a new type of turbo
+// Override the Use() function to apply logic when player is using turbo
+
 [RequireComponent(typeof(BaseCarController))]
 public abstract class Turbo : MonoBehaviour
 {

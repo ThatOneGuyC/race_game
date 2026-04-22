@@ -147,7 +147,7 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
     {
         float forwardValue = Mathf.Abs(MoveInput);
        
-        float targetSpeed = Mathf.MoveTowards(CarRb.linearVelocity.magnitude, Maxspeed  * forwardValue, 10f * Time.deltaTime);
+        float targetSpeed = Mathf.MoveTowards(CarRb.linearVelocity.magnitude, MaxSpeed  * forwardValue, 10f * Time.deltaTime);
         Vector3 flatForwardVelocity = transform.forward * targetSpeed;
         CarRb.linearVelocity = new Vector3(flatForwardVelocity.x, CarRb.linearVelocity.y, flatForwardVelocity.z);
     }
@@ -158,14 +158,14 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
         TurnSensitivity = Mathf.Lerp(
             TurnSensitivityAtLowSpeed,
             TurnSensitivityAtHighSpeed,
-            Mathf.Clamp01(speed / Maxspeed));
+            Mathf.Clamp01(speed / MaxSpeed));
     }
 
     void OnBrakePerformed(InputAction.CallbackContext ctx)
     {
         foreach (var wheel in Wheels)
         {
-            wheel.Brakes(BrakeAcceleration);
+            wheel.Brake(BrakeAcceleration);
         }
     }
     void OnBrakeCanceled(InputAction.CallbackContext ctx)

@@ -17,6 +17,7 @@ public class InputRecorder : MonoBehaviour
     void Awake()
     {
         dataDirPath = Application.persistentDataPath + "/Replays";
+        enabled = false;
     }
 
     void OnEnable()

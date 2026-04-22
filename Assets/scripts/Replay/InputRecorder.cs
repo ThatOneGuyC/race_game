@@ -18,6 +18,12 @@ public class InputRecorder : MonoBehaviour
     {
         dataDirPath = Application.persistentDataPath + "/Replays";
         enabled = false;
+        inputTrace = new()
+        {
+            onFilterEvent = (ptr, device) => FilterInput(ptr, device)
+        };
+        inputTrace.Enable();
+        Debug.Log("data path: " + dataDirPath);
     }
 
     void OnEnable()

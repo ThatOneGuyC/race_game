@@ -13,13 +13,16 @@ public class CameraFollow : MonoBehaviour
     public Transform carTarget;
     
     private Camera Cam;
-    private PlayerCarController carController;
+    private BaseCarController carController;
     float normalFOV = 60;
     float ZoomFOV = 70;
 
     private void Start()
     {
         Cam = GetComponent<Camera>();
+        //kindly fuck off
+        carController = GameManager.instance.CurrentCar.GetComponentInChildren<NewDoublefunszechuansauceWithAsideofNuggets>();
+        if (carController != null) return;
         carController = GameManager.instance.CurrentCar.GetComponentInChildren<PlayerCarController>();
     }
 

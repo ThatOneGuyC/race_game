@@ -706,8 +706,8 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d8597b69722d5244db8fec147b546022, type: 2}
-  - {fileID: 2100000, guid: d8597b69722d5244db8fec147b546022, type: 2}
+  - {fileID: 2100000, guid: 6d4ac911959bda642b25dbda25119de7, type: 2}
+  - {fileID: 2100000, guid: a1f86d78d586e074dbe264c437dfa775, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1246,13 +1246,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 846c21108a9446549ac1ccfe7dfd277a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Acceleration: 700
-  Deceleration: 1
+  MaxAcceleration: 1000
+  MaxDeceleration: 700
   BrakeAcceleration: 150
   TurnSensitivity: 1
   TurnSensitivityAtHighSpeed: 17.5
   TurnSensitivityAtLowSpeed: 30
-  MaxSpeed: 100
+  Deceleration: 1
+  MaxSpeed: 210
+  TargetMaxSpeed: 100
+  BaseMaxSpeed: 100
   Wheels: []
   MoveInput: 0
   SteerInput: 0

@@ -13,16 +13,20 @@ public class PlayerCarController : BaseCarController
     private PlayerInput PlayerInput;
     private string CurrentControlScheme = "Keyboard";
     [Header("Turbo Type")]
-    public int TurbeChargeAmount { get; protected set; } = 3;
-    protected Coroutine TurbeBoost;
-    public float LastNonWheelInputTime = 0f;
-    public float LastWheelInputTime = 0f;
-    protected override void Awake()
+    internal int turbeChargeAmount = 3;
+    internal Coroutine TurbeBoost;
+    internal float LastNonWheelInputTime = 0f;
+    internal float LastWheelInputTime = 0f;
+
+    private Material carLightsMaterial;
+
+    new void  Awake()
     {
         Controls = new CarInputActions();
         Controls.Enable();
         PlayerInput = GetComponent<PlayerInput>();
         TurbeBar = GameManager.instance.CarUI.transform.Find("TurbeDisplay").GetComponentInChildren<Image>();
+        carLightsMaterial = GetComponentInChildren<Renderer>().materials[1];
         AutoAssignWheelsAndMaterials();
     }
 
@@ -253,6 +257,9 @@ public class PlayerCarController : BaseCarController
     void Move()
     {
         UpdateTargetTorque();
+        if (Controls.CarControls.Brake.IsPressed()) carLightsMaterial.SetVector("_EmissionColor", new Vector4(1f, 0.0491371f, 0f, 1f) * 2f);
+        else if (carLightsMaterial.GetVector("_EmissionColor") != new Vector4(0f, 0f, 0f, 1f) * 2f) carLightsMaterial.SetVector("_EmissionColor", new Vector4(0f, 0f, 0f, 1f) * 2f);
+
         AdjustSuspension();
         foreach (var wheel in Wheels)
         {

@@ -172,7 +172,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d3dcbc8bdaf724143bfb1dfd49e6a780, type: 2}
+  - {fileID: 2100000, guid: 281a41acce25a054a98cb1211cc83cfa, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -405,8 +405,6 @@ MonoBehaviour:
   TurbeReduce: 20
   TurbeRegen: 15
   TurbeWaitTime: 2
-  LastNonWheelInputTime: 0
-  LastWheelInputTime: 0
 --- !u!114 &7719115578787100056
 MonoBehaviour:
   m_ObjectHideFlags: 0

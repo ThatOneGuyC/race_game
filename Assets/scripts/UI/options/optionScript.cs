@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Audio;
 using TMPro;
-using Autodesk.Fbx;
 
 public class OptionScript : MonoBehaviour
 {

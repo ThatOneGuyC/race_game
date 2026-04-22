@@ -664,6 +664,7 @@ GameObject:
   - component: {fileID: 187602521392888673}
   - component: {fileID: 1311118830665507097}
   - component: {fileID: 8656803013594639001}
+  - component: {fileID: 2608171001088632632}
   m_Layer: 0
   m_Name: car
   m_TagString: Untagged
@@ -733,16 +734,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 846c21108a9446549ac1ccfe7dfd277a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxAcceleration: 1000
-  MaxDeceleration: 700
+  Acceleration: 700
+  Deceleration: 1
   BrakeAcceleration: 200
   TurnSensitivity: 1
   TurnSensitivityAtHighSpeed: 17.5
   TurnSensitivityAtLowSpeed: 30
-  Deceleration: 1
-  Maxspeed: 190
-  TargetMaxSpeed: 100
-  BaseMaxSpeed: 100
+  MaxSpeed: 180
   Wheels: []
   MoveInput: 0
   SteerInput: 0
@@ -800,16 +798,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2831e5b66e7145d4a913f2e5600c814c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NewDoublefunszechuansauceWithAsideofNuggets
-  MaxAcceleration: 700
-  MaxDeceleration: 700
+  Acceleration: 10
+  Deceleration: 1
   BrakeAcceleration: 500
   TurnSensitivity: 1
   TurnSensitivityAtHighSpeed: 17.5
   TurnSensitivityAtLowSpeed: 30
-  Deceleration: 1
-  Maxspeed: 100
-  TargetMaxSpeed: 100
-  BaseMaxSpeed: 100
+  MaxSpeed: 180
   Wheels: []
   MoveInput: 0
   SteerInput: 0
@@ -822,6 +817,36 @@ MonoBehaviour:
   TurbeReduce: 10
   TurbeRegen: 10
   TurbeWaitTime: 2
+--- !u!114 &2608171001088632632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3013609153453077785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+  m_Actions: {fileID: -944628639613478452, guid: 53472e6d66c2c0f4ba2cc137f3d2721b, type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: 
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!1 &3172822010265455929
 GameObject:
   m_ObjectHideFlags: 0

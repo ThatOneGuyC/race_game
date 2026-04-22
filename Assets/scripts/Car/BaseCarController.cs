@@ -8,6 +8,7 @@ using System.Linq;
 public class BaseCarController : MonoBehaviour
 {
     [Header("Auton asetukset")]
+    //movement reworking jälkeen Acceleration ei tarvi olla 700 enää, 10 on jo hyvä 
     public float Acceleration = 700.0f;
     public float Deceleration = 700.0f;
     [SerializeField] protected float BrakeAcceleration = 500.0f;

@@ -5,7 +5,6 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Linq;
 
-[RequireComponent(typeof(Turbo))]
 public class BaseCarController : MonoBehaviour
 {
     [Header("Auton asetukset")]
@@ -83,7 +82,7 @@ public class BaseCarController : MonoBehaviour
     protected virtual void Awake()
     {
         AutoAssignWheelsAndMaterials();
-        turbo = GetComponent<Turbo>();
+        TryGetComponent(out turbo);
     }
 
     protected virtual void Start()

@@ -256,32 +256,32 @@ public class BaseCarController : MonoBehaviour
         }
     }
 
-    protected void TurbeMeter()
-    {
-        if (isTurboActive)
-        {
-            if (TurbeRegeneration != null) 
-            {
-                StopCoroutine(TurbeRegeneration);
-                TurbeRegeneration = null;
-            }
-            TurbeAmount = Mathf.Max(TurbeAmount - TurbeReduce * Time.deltaTime, 0f);
-        }
-        else if (TurbeAmount < TurbeMax && TurbeRegeneration == null) TurbeRegeneration = StartCoroutine(RegenerateTurbe());
-        TurbeBar.fillAmount = TurbeAmount / TurbeMax;
-    }
+    // protected void TurbeMeter()
+    // {
+    //     if (isTurboActive)
+    //     {
+    //         if (TurbeRegeneration != null) 
+    //         {
+    //             StopCoroutine(TurbeRegeneration);
+    //             TurbeRegeneration = null;
+    //         }
+    //         TurbeAmount = Mathf.Max(TurbeAmount - TurbeReduce * Time.deltaTime, 0f);
+    //     }
+    //     else if (TurbeAmount < TurbeMax && TurbeRegeneration == null) TurbeRegeneration = StartCoroutine(RegenerateTurbe());
+    //     TurbeBar.fillAmount = TurbeAmount / TurbeMax;
+    // }
 
-    private IEnumerator RegenerateTurbe()
-    {
-        yield return new WaitForSeconds(TurbeWaitTime);
+    // private IEnumerator RegenerateTurbe()
+    // {
+    //     yield return new WaitForSeconds(TurbeWaitTime);
 
-        while (TurbeAmount < TurbeMax)
-        {
-            TurbeAmount = Mathf.Min(TurbeAmount + TurbeRegen * Time.deltaTime, TurbeMax);
-            yield return null;
-        }
+    //     while (TurbeAmount < TurbeMax)
+    //     {
+    //         TurbeAmount = Mathf.Min(TurbeAmount + TurbeRegen * Time.deltaTime, TurbeMax);
+    //         yield return null;
+    //     }
 
-        TurbeRegeneration = null;
-        yield break;
-    }
+    //     TurbeRegeneration = null;
+    //     yield break;
+    // }
 }

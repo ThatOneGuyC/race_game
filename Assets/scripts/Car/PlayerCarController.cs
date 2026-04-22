@@ -20,7 +20,7 @@ public class PlayerCarController : BaseCarController
 
     private Material carLightsMaterial;
 
-    new void  Awake()
+    override protected void Awake()
     {
         Controls = new CarInputActions();
         Controls.Enable();
@@ -28,6 +28,11 @@ public class PlayerCarController : BaseCarController
         TurbeBar = GameManager.instance.CarUI.transform.Find("TurbeDisplay").GetComponentInChildren<Image>();
         carLightsMaterial = GetComponentInChildren<Renderer>().materials[1];
         AutoAssignWheelsAndMaterials();
+
+        base.Awake();
+
+        Controls.CarControls.turbo.started += context => { turbo.Activate(); };
+        Controls.CarControls.turbo.performed += context => { turbo.Stop(); };
     }
 
     override protected void Start()
@@ -64,8 +69,6 @@ public class PlayerCarController : BaseCarController
         Steer();
         Decelerate();
         Applyturnsensitivity(speed);
-        HandleTurbo();
-
         WheelEffects(IsDrifting);
         base.FixedUpdate();
     }
@@ -245,12 +248,12 @@ public class PlayerCarController : BaseCarController
             Mathf.Clamp01(speed / MaxSpeed));
     }
 
-    protected void HandleTurbo()
-    {
-        if (!CanUseTurbo) return;
-        Turbe.TURBO(this);
-        TurbeMeter();
-    }
+    // protected void HandleTurbo()
+    // {
+    //     if (!CanUseTurbo) return;
+    //     Turbe.TURBO(this);
+    //     TurbeMeter();
+    // }
 
 
 

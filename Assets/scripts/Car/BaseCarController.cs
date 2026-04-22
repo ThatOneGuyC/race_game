@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Linq;
 
+[RequireComponent(typeof(Turbo))]
 public class BaseCarController : MonoBehaviour
 {
     [Header("Auton asetukset")]
@@ -32,7 +33,7 @@ public class BaseCarController : MonoBehaviour
     public float SmoothedMaxAcceleration { get; protected set; }
     [Header("turbe asetukset")]
     protected Image TurbeBar;
-    public bool IsTurboActive { get; set; } = false;
+    public bool isTurboActive { get; set; } = false;
     public float TurbeAmount { get; protected set; } = 100.0f;
     [SerializeField] protected float TurbeMax = 100.0f;
     public float Turbepush = 15.0f;
@@ -44,6 +45,7 @@ public class BaseCarController : MonoBehaviour
     [NonSerialized] public bool CanUseTurbo = true;
     protected Collider carCollider;
     public Vector3 CarExtents { get; protected set; }
+    protected Turbo turbo;
 
     public enum Axel
     {
@@ -81,6 +83,7 @@ public class BaseCarController : MonoBehaviour
     protected virtual void Awake()
     {
         AutoAssignWheelsAndMaterials();
+        turbo = GetComponent<Turbo>();
     }
 
     protected virtual void Start()
@@ -255,7 +258,7 @@ public class BaseCarController : MonoBehaviour
 
     protected void TurbeMeter()
     {
-        if (IsTurboActive)
+        if (isTurboActive)
         {
             if (TurbeRegeneration != null) 
             {

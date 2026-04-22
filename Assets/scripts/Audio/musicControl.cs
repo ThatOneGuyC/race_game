@@ -58,12 +58,12 @@ public class musicControl : MonoBehaviour
     //kaikki tarpeelline on täs
     void DriftCall()
     {
-        CurrentMusState = carController.IsTurboActive ? CarMusicState.Turbo : CarMusicState.Drift;
+        CurrentMusState = carController.isTurboActive ? CarMusicState.Turbo : CarMusicState.Drift;
         FadeTracks();
     }
     void DriftCanceled()
     {
-        CurrentMusState = carController.IsTurboActive ? CarMusicState.Turbo : CarMusicState.Main;
+        CurrentMusState = carController.isTurboActive ? CarMusicState.Turbo : CarMusicState.Main;
         FadeTracks();
     }
     void TurboCall()

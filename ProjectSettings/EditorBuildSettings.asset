@@ -18,7 +18,7 @@ EditorBuildSettings:
     path: Assets/Scenes/_maps/shoreline_night.unity
     guid: 2632453adca2b35498f7032695a0818d
   - enabled: 1
-    path: Assets/Scenes/_maps/canyon.unity
+    path: Assets/Scenes/_maps/ai_canyon.unity
     guid: 6ef29958889742440937dd36e5cddb82
   - enabled: 1
     path: Assets/Scenes/_maps/canyon_night.unity

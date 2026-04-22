@@ -31,8 +31,11 @@ public class PlayerCarController : BaseCarController
 
         base.Awake();
 
-        Controls.CarControls.turbo.started += context => { turbo.Activate(); };
-        Controls.CarControls.turbo.performed += context => { turbo.Stop(); };
+        if (turbo != null)
+        {
+            Controls.CarControls.turbo.started += context => { turbo.Activate(); };
+            Controls.CarControls.turbo.performed += context => { turbo.Stop(); };
+        }
     }
 
     override protected void Start()

@@ -1253,7 +1253,7 @@ MonoBehaviour:
   TurnSensitivityAtHighSpeed: 17.5
   TurnSensitivityAtLowSpeed: 30
   Deceleration: 1
-  Maxspeed: 210
+  MaxSpeed: 210
   TargetMaxSpeed: 100
   BaseMaxSpeed: 100
   Wheels: []

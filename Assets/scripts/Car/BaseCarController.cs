@@ -7,6 +7,44 @@ using System.Linq;
 
 public class BaseCarController : MonoBehaviour
 {
+    [Header("Auton asetukset")]
+    //movement reworking jälkeen Acceleration ei tarvi olla 700 enää, 10 on jo hyvä 
+    public float Acceleration = 700.0f;
+    public float Deceleration = 700.0f;
+    [SerializeField] protected float BrakeAcceleration = 500.0f;
+    [Header("turn asetukset")]
+    [SerializeField] protected float TurnSensitivity = 1.0f;
+    [SerializeField] protected float TurnSensitivityAtHighSpeed = 17.5f;
+    [SerializeField] protected float TurnSensitivityAtLowSpeed = 30.0f;
+    public float MaxSpeed = 180.0f;
+    [SerializeField] protected List<Wheel> Wheels;
+    [Header("Trail settings")]
+    public float MoveInput;
+    public float SteerInput;
+    protected Vector3 _CenterofMass;
+    public float TargetTorque;
+    public Rigidbody CarRb { get; protected set; }
+    public float Turbesped = 60.0f, BaseSpeed = 180f, DriftMaxSpeed = 140f;
+    [Header("Drift asetukset")]
+    public bool IsDrifting { get; protected set; } = false;
+    public float BaseMaxAccerelation { get; protected set; }
+    public float BaseTargetTorque { get; protected set; }
+    public float SmoothedMaxAcceleration { get; protected set; }
+    [Header("turbe asetukset")]
+    protected Image TurbeBar;
+    public bool IsTurboActive { get; set; } = false;
+    public float TurbeAmount { get; protected set; } = 100.0f;
+    [SerializeField] protected float TurbeMax = 100.0f;
+    public float Turbepush = 15.0f;
+    [SerializeField] protected float TurbeReduce = 10.0f;
+    [SerializeField] protected float TurbeRegen = 10.0f;
+    [SerializeField] protected float TurbeWaitTime = 2.0f;
+    protected Coroutine TurbeRegeneration = null;
+    [NonSerialized] public bool CanDrift = true;
+    [NonSerialized] public bool CanUseTurbo = true;
+    protected Collider carCollider;
+    public Vector3 CarExtents { get; protected set; }
+
     public enum Axel
     {
         Front,
@@ -28,7 +66,7 @@ public class BaseCarController : MonoBehaviour
             return WheelCollider.GetGroundHit(out WheelHit hit);
         }
 
-        public void Brakes(float BrakeAcceleration)
+        public void Brake(float BrakeAcceleration)
         {
             WheelCollider.brakeTorque = BrakeAcceleration * 15f;
         }
@@ -39,48 +77,6 @@ public class BaseCarController : MonoBehaviour
             WheelCollider.brakeTorque = 0f;
         }
     }
-
-    [Header("Auton asetukset")]
-    public float MaxAcceleration = 700.0f;
-    public float MaxDeceleration = 700.0f; // Change to something later?
-    [SerializeField] protected float BrakeAcceleration = 500.0f;
-    [Header("turn asetukset")]
-    [SerializeField] protected float TurnSensitivity = 1.0f;
-    [SerializeField] protected float TurnSensitivityAtHighSpeed = 17.5f;
-    [SerializeField] protected float TurnSensitivityAtLowSpeed = 30.0f;
-    [SerializeField] protected float Deceleration = 1.0f;
-    [SerializeField] public float Maxspeed = 100.0f;
-    [SerializeField] protected float TargetMaxSpeed = 100.0f;
-    [SerializeField] protected float BaseMaxSpeed = 100.0f;
-    [SerializeField] protected List<Wheel> Wheels;
-    [Header("Trail settings")]
-    public float MoveInput;
-    public float SteerInput;
-    protected Vector3 _CenterofMass;
-    public float TargetTorque;
-    public Rigidbody CarRb { get; protected set; }
-    protected float Activedrift = 0.0f;
-    public float Turbesped = 60.0f, BaseSpeed = 180f, DriftMaxSpeed = 140f;
-    [Header("Drift asetukset")]
-    public bool IsDrifting { get; protected set; } = false;
-    public float BaseMaxAccerelation { get; protected set; }
-    public float BaseTargetTorque { get; protected set; }
-    public float SmoothedMaxAcceleration { get; protected set; }
-    [Header("turbe asetukset")]
-    protected Image TurbeBar;
-    public bool IsTurboActive { get; set; } = false;
-    public float TurbeAmount { get; protected set; } = 100.0f;
-    [SerializeField] protected float TurbeMax = 100.0f;
-    public float Turbepush = 15.0f;
-    [SerializeField] protected float TurbeReduce = 10.0f;
-    [SerializeField] protected float TurbeRegen = 10.0f;
-    [SerializeField] protected float TurbeWaitTime = 2.0f;
-    protected Coroutine TurbeRegeneration = null;
-
-    [NonSerialized] public bool CanDrift = true;
-    [NonSerialized] public bool CanUseTurbo = true;
-    protected Collider carCollider;
-    public Vector3 CarExtents { get; protected set; }
 
     protected virtual void Awake()
     {
@@ -96,14 +92,12 @@ public class BaseCarController : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        Maxspeed = Mathf.Lerp(Maxspeed, TargetMaxSpeed, Time.fixedDeltaTime * (Maxspeed < TargetMaxSpeed ? MaxAcceleration : MaxDeceleration));
         ApplySpeedLimit();
     }
 
     protected virtual void ApplySpeedLimit()
     {
-        TargetMaxSpeed = Mathf.Clamp(TargetMaxSpeed, 0, BaseMaxSpeed);
-        if (CarRb.linearVelocity.magnitude > Maxspeed) CarRb.linearVelocity = Maxspeed * CarRb.linearVelocity.normalized;
+        if (CarRb.linearVelocity.magnitude * 3.6f > MaxSpeed) CarRb.linearVelocity = MaxSpeed / 3.6f * CarRb.linearVelocity.normalized;
     }
 
     [ContextMenu("Auto Assign Wheels")]
@@ -129,9 +123,9 @@ public class BaseCarController : MonoBehaviour
 
             var Effect = Effects.transform.Find(WheelCollider.name);
 
-            wheel.WheelEffectobj = Effect?.gameObject;
-                var trailRenderer = wheel.WheelEffectobj != null ? wheel.WheelEffectobj.GetComponentInChildren<TrailRenderer>(true) : null;
-                if (trailRenderer != null && (trailRenderer.sharedMaterial == null || trailRenderer.sharedMaterial.shader == null || !trailRenderer.sharedMaterial.shader.isSupported)) trailRenderer.sharedMaterial = new Material(Shader.Find("Sprites/Default"));
+            wheel.WheelEffectobj = Effect != null ? Effect.gameObject : null;
+            var trailRenderer = wheel.WheelEffectobj != null ? wheel.WheelEffectobj.GetComponentInChildren<TrailRenderer>(true) : null;
+            if (trailRenderer != null && (trailRenderer.sharedMaterial == null || trailRenderer.sharedMaterial.shader == null || !trailRenderer.sharedMaterial.shader.isSupported)) trailRenderer.sharedMaterial = new Material(Shader.Find("Sprites/Default"));
                     wheel.SmokeParticle =
             wheel.WheelEffectobj != null
                 ? wheel.WheelEffectobj.GetComponentInChildren<ParticleSystem>(true)
@@ -159,18 +153,10 @@ public class BaseCarController : MonoBehaviour
 
     protected void Decelerate()
     {
-
         if (MoveInput == 0)
         {
-            Vector3 velocity = CarRb.linearVelocity;
-
-            velocity -= 2.0f * Deceleration * Time.deltaTime * velocity.normalized;
-
-            if (velocity.magnitude < 0.1f)
-            {
-                velocity = Vector3.zero;
-            }
-            CarRb.linearVelocity = velocity;
+            if (CarRb.linearVelocity.magnitude < 0.1f) CarRb.linearVelocity = Vector3.zero;
+            else CarRb.linearVelocity = Vector3.Lerp(CarRb.linearVelocity, Vector3.zero, 2.0f * Time.deltaTime);
         }
     }
 

@@ -50,8 +50,8 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
         Controls.CarControls.Move.performed += OnMovePerformed;
         Controls.CarControls.Move.canceled  += OnMoveCanceled;
 
-        // Controls.CarControls.Drift.performed   += OnDriftPerformed;
-        // Controls.CarControls.Drift.canceled    += OnDriftCanceled;
+        Controls.CarControls.Drift.performed   += OnDriftPerformed;
+        Controls.CarControls.Drift.canceled    += OnDriftCanceled;
         Controls.CarControls.Brake.performed += OnBrakePerformed;
         Controls.CarControls.Brake.canceled  += OnBrakeCanceled;
     }
@@ -67,8 +67,8 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
 
         Controls.CarControls.Move.performed -= OnMovePerformed;
         Controls.CarControls.Move.canceled  -= OnMoveCanceled;
-        // Controls.CarControls.Drift.performed -= OnDriftPerformed;
-        // Controls.CarControls.Drift.canceled  -= OnDriftCanceled;
+        Controls.CarControls.Drift.performed -= OnDriftPerformed;
+        Controls.CarControls.Drift.canceled  -= OnDriftCanceled;
         Controls.CarControls.Brake.performed -= OnBrakePerformed;
         Controls.CarControls.Brake.canceled -= OnBrakeCanceled;
         if (LGM != null)
@@ -127,12 +127,12 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
     }
 
     //que
-    // protected void HandleTurbo()
-    // {
-    //     if (!CanUseTurbo) return;
-    //     Turbe.TURBO(this);
-    //     TurbeMeter();
-    // }
+//    protected void HandleTurbo()
+//     {
+//         if (!CanUseTurbo) return;
+//         Turbe.TURBO(this);
+//         TurbeMeter();
+//     }
 
     void GetInputs()
     {
@@ -147,7 +147,7 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
     {
         float forwardValue = Mathf.Abs(MoveInput);
        
-        float targetSpeed = Mathf.MoveTowards(CarRb.linearVelocity.magnitude, MaxSpeed  * forwardValue, 10f * Time.deltaTime);
+        float targetSpeed = Mathf.MoveTowards(CarRb.linearVelocity.magnitude, MaxSpeed  * forwardValue, Acceleration * Time.deltaTime);
         Vector3 flatForwardVelocity = transform.forward * targetSpeed;
         CarRb.linearVelocity = new Vector3(flatForwardVelocity.x, CarRb.linearVelocity.y, flatForwardVelocity.z);
     }
@@ -168,11 +168,22 @@ public class NewDoublefunszechuansauceWithAsideofNuggets : BaseCarController
             wheel.Brake(BrakeAcceleration);
         }
     }
+
     void OnBrakeCanceled(InputAction.CallbackContext ctx)
     {
         foreach (var wheel in Wheels)
         {
             wheel.MotorTorque(TargetTorque);
         }
+    }
+
+    void OnDriftPerformed(InputAction.CallbackContext ctx)
+    {
+        print("you're are drifting now");
+    }
+
+    void OnDriftCanceled(InputAction.CallbackContext ctx)
+    {
+        print("you stopped drifting");
     }
 }

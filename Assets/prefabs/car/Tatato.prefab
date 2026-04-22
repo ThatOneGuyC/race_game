@@ -717,8 +717,6 @@ MonoBehaviour:
   TurbeReduce: 15
   TurbeRegen: 15
   TurbeWaitTime: 2
-  LastNonWheelInputTime: 0
-  LastWheelInputTime: 0
 --- !u!114 &8914551668265311642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1074,7 +1072,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6ece4d579db479144b95489319d9b453, type: 2}
+  - {fileID: 2100000, guid: 6087d768d9793b449b7134276e09e853, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

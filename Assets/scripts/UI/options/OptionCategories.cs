@@ -33,7 +33,7 @@ public class OptionCategories : MonoBehaviour
         Controls.CarControls.carskinright.performed -= ctx => ChangeCategoryManual(true);
         Controls.CarControls.carskinleft.performed -= ctx => ChangeCategoryManual(false);
     }
-    //TODO: nvm sitä ei tarvi korjaa mut tästä voi silti tehä paremman
+    //TODO: nvm NVM tää on paskana
     private void ChangeCategoryManual(bool change)
     {
         if (index > CategoryButtonList.Count - 1 || index < 0) return;
@@ -41,6 +41,8 @@ public class OptionCategories : MonoBehaviour
         {
             if (change) CategoryButtonList[index + 1].Select();
             else CategoryButtonList[index - 1].Select();
+            currentCategory.gameObject.SetActive(true);
+            foreach (var a in CategoryContents) if (a != currentCategory) a.gameObject.SetActive(false);
         }
         catch
         {
@@ -56,8 +58,8 @@ public class OptionCategories : MonoBehaviour
         index = previousButtonIndex > currentButtonIndex ? index -= 1 : index += 1 ;
         //Debug.Log($"index: {index}, prev: {previousButtonIndex}, cur: {currentButtonIndex}");
 
-        CategoryContents[previousButtonIndex].gameObject.SetActive(false);
-        CategoryContents[currentButtonIndex].gameObject.SetActive(true);
+        currentCategory.gameObject.SetActive(true);
+        foreach (var a in CategoryContents) if (a != currentCategory) a.gameObject.SetActive(false);
     }
 
     //TODO: parempi tapa ylös liikkumisen tarkistamiseen (OnMove callback todennäkösesti)

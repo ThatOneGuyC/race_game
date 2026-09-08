@@ -16,7 +16,7 @@ public class Version : MonoBehaviour
     private void ChangeText()
     {
         StringBuilder sb = new();
-        sb.Append($"DEMO V{Application.version}");
+        sb.Append($"BETA | DEMO V{Application.version}");
         sb.Append($"\n{changes}");
         GetComponent<TMP_Text>().text = sb.ToString();
     }

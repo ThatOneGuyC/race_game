@@ -16,7 +16,6 @@ public class CarStats
     public int speed;
     public int acceleration;
     public int handling;
-    public float scoreMult;
     public int turbeBoost;
     public int turbeAmount;
 }
@@ -73,7 +72,7 @@ public class SelectionMenuNewestComboDoubleTroubleExtraSauce : MonoBehaviour
     private int index;
     public Text carNameText,
     speedText, accelerationText, handlingText,
-    scoreMultText, turbeBoostText, turbeAmountText;
+    turbeBoostText, turbeAmountText;
     [SerializeField] private Text lockedPopup;
     private bool canSelectCar;
     [SerializeField] private AudioSource carTypeSwitchSound;
@@ -200,7 +199,6 @@ public class SelectionMenuNewestComboDoubleTroubleExtraSauce : MonoBehaviour
             speedText.text = $"Speed: {activeCarStats.speed}";
             accelerationText.text = $"Acceleration: {activeCarStats.acceleration}";
             handlingText.text = $"Handling: {activeCarStats.handling}";
-            scoreMultText.text = $"Score mult.: {activeCarStats.scoreMult}x";
             turbeBoostText.text = $"Turbo boost: {activeCarStats.turbeBoost}";
             turbeAmountText.text = $"Turbo amount: {activeCarStats.turbeAmount}";
 
